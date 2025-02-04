@@ -1,6 +1,7 @@
 ### 💡 Sobre mim
 
 ✨ Apaixonado por **dados, automação e desenvolvimento**! 
+
 🔹 Especialista em **Extração de Dados, Análise de Dados e Automação de Processos**  
 🔹 Domínio de **BigQuery, Python, Angular, TypeScript, GraphQL e OCR**  
 🔹 Experiência sólida em **Integração de APIs e Microservices**  
