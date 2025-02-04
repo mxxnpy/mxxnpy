@@ -28,36 +28,9 @@
 ![Angular](https://img.shields.io/badge/-Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)
 
----
-
-## 🔥 Projetos em Destaque
-
-### 🏆 **Mottu Authorities App**
-🚀 **Automação de requisições com Pipefy e Integração via API**
-- Aplicação que coleta informações por meio de um formulário e abre cards automaticamente no Pipefy.
-- Integração com endpoints para verificar placas e dados de veículos em tempo real.
-
-### 📑 **Geração de Documentos e OCR**
-📌 **Extração Inteligente e Automação de Documentos**
-- Desenvolvimento de **scripts para OCR**, processando documentos automaticamente.
-- Integração de **APIs para geração e automação de documentos em larga escala**.
-
-### 📊 **Manipulação e Análise de Dados com BigQuery**
-📌 **Dashboards e Análises Estratégicas**
-- Extração e transformação de grandes volumes de dados usando **BigQuery**.
-- Desenvolvimento de **queries avançadas** para segmentação de dados e relatórios estratégicos.
-- Automação de processos para coleta e análise de informações operacionais.
-
----
-
-## 📈 Estatísticas do GitHub
-![Estatísticas do GitHub](https://github-readme-stats.vercel.app/api?username=SeuGitHub&show_icons=true&theme=radical&count_private=true)
-![Linguagens Mais Usadas](https://github-readme-stats.vercel.app/api/top-langs/?username=SeuGitHub&layout=compact&theme=radical)
-
----
 
 ## 📫 Contato
 
-📧 **Email:** [seuemail@email.com](mailto:ayu.leandro@icloud.com)  
+📧 **Email:** [ayu.leandro@icloud.com](mailto:ayu.leandro@icloud.com)  
 
 💡 **"Data > Opinion"**
