@@ -22,12 +22,16 @@
 
 ## 🔧 Tecnologias e Ferramentas
 
-![Python](https://img.shields.io/badge/-Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![BigQuery](https://img.shields.io/badge/-BigQuery-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
-![Node.js](https://img.shields.io/badge/-Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Angular](https://img.shields.io/badge/-Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
-![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white)
+![Python](https://skillicons.dev/icons?i=python)
+![TypeScript](https://skillicons.dev/icons?i=ts)
+![js](https://skillicons.dev/icons?i=js)
+![cs](https://skillicons.dev/icons?i=cs)
+
+![gcp](https://skillicons.dev/icons?i=gcp)
+![html](https://skillicons.dev/icons?i=html)
+![Node.js](https://skillicons.dev/icons?i=nodejs)
+![Angular](https://skillicons.dev/icons?i=angular)
+![GraphQL](https://skillicons.dev/icons?i=graphql)
 
 ---
 
