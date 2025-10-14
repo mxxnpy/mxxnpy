@@ -5,7 +5,6 @@ import os
 from lxml import etree
 import time
 import hashlib
-import pandas 
 
 # Fine-grained personal access token with All Repositories access:
 # Account permissions: read:Followers, read:Starring, read:Watching
