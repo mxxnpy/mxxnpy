@@ -11,11 +11,14 @@ on:
 jobs:
   update-spotify:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Get Python 3.8
         uses: actions/setup-python@v4

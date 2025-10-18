@@ -4,17 +4,20 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "0 */6 * * *"  # A cada 6 horas
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
       - name: Configure pip cache
