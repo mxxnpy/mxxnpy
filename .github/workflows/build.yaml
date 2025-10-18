@@ -46,5 +46,6 @@ jobs:
           git diff
           git config --global user.email "github-actions-bot@mxxnpy.github.io"
           git config --global user.name "mxxnpy/GitHub-Actions-Bot"
+          git pull --rebase origin main || echo "No remote changes"
           git commit -m "📊 Updated GitHub Stats" -a || echo "No changes to commit"
           git push

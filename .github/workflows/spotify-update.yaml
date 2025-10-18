@@ -51,6 +51,7 @@ jobs:
           git diff --cached --quiet || (
             git config --global user.email "github-actions-bot@mxxnpy.github.io"
             git config --global user.name "mxxnpy/Spotify-Bot"
+            git pull --rebase origin main || echo "No remote changes"
             git commit -m "🎵 Updated Spotify track"
             git push
           )
