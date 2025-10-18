@@ -517,7 +517,7 @@ if __name__ == '__main__':
         age_data, age_time = perf_counter(daily_readme, datetime.datetime(2002, 4, 23))
         formatter('age calculation', age_time)
         # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
-        countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 06, 10))
+        countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 6, 10))
         formatter('countdown to target', countdown_time)
         total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
         formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)

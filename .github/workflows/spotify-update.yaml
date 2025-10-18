@@ -1,0 +1,46 @@
+name: Spotify Update
+on:
+  schedule:
+    - cron: "* * * * *"  # A cada minuto
+  workflow_dispatch:  # Permite execução manual
+  push:
+    paths:
+      - 'spotify_tracker.py'
+      - 'spotify_update.py'
+
+jobs:
+  update-spotify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          
+      - name: Get Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          
+      - name: Configure pip cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/cache/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+          
+      - name: Install dependencies
+        run: python -m pip install -r cache/requirements.txt
+        
+      - name: Update Spotify only
+        run: python spotify_update.py
+        
+      - name: Commit Spotify changes
+        run: |-
+          git add *.svg
+          git diff --cached --quiet || (
+            git config --global user.email "github-actions-bot@mxxnpy.github.io"
+            git config --global user.name "mxxnpy/Spotify-Bot"
+            git commit -m "🎵 Updated Spotify track"
+            git push
+          )
