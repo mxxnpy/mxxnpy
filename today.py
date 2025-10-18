@@ -67,6 +67,11 @@ def simple_request(func_name, query, variables):
     """
     request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS)
     if request.status_code == 200:
+        response_data = request.json()
+        if 'errors' in response_data:
+            print(f"[ERROR] GraphQL errors in {func_name}: {response_data['errors']}")
+            print(f"[DEBUG] Query: {query}")
+            print(f"[DEBUG] Variables: {variables}")
         return request
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
 
@@ -264,7 +269,7 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False):
         
         response_data = request.json()
         if 'data' not in response_data or not response_data['data']:
-            print(f"[ERROR] Invalid API response: {response_data}")
+            print(f"[ERROR] Invalid API response in loc_query: {response_data}")
             break
             
         repo_data = response_data['data']['user']['repositories']
@@ -525,12 +530,9 @@ if __name__ == '__main__':
         # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
         countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 6, 10))
         formatter('countdown to target', countdown_time)
-        try:
-            total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
-            formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
-        except Exception as e:
-            print(f"[WARNING] LOC query failed: {e}")
-            total_loc, loc_time = [0, 0, 0, False], 0
+        # TEMPORARIAMENTE DESABILITADO - GraphQL com problema
+        print("[INFO] LOC query temporarily disabled due to GraphQL issues")
+        total_loc, loc_time = [0, 0, 0, False], 0
             
         try:
             commit_data, commit_time = perf_counter(commit_counter, 7)
