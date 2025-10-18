@@ -5,6 +5,7 @@ import os
 from lxml import etree
 import time
 import hashlib
+from spotify_tracker import format_current_playing
 
 # Fine-grained personal access token with All Repositories access:
 # Account permissions: read:Followers, read:Starring, read:Watching
@@ -134,89 +135,116 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
 def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, deletion_total=0, my_commits=0, cursor=None):
     """
     Uses GitHub's GraphQL v4 API and cursor pagination to fetch 100 commits from a repository at a time
+    Implementação iterativa para evitar RecursionError
     """
-    query_count('recursive_loc')
-    query = '''
-    query ($repo_name: String!, $owner: String!, $cursor: String) {
-        repository(name: $repo_name, owner: $owner) {
-            defaultBranchRef {
-                target {
-                    ... on Commit {
-                        history(first: 100, after: $cursor) {
-                            totalCount
-                            edges {
-                                node {
-                                    ... on Commit {
-                                        committedDate
-                                    }
-                                    author {
-                                        user {
-                                            id
+    max_iterations = 1000  # Limite de segurança
+    iteration_count = 0
+    
+    while iteration_count < max_iterations:
+        iteration_count += 1
+        query_count('recursive_loc')
+        
+        query = '''
+        query ($repo_name: String!, $owner: String!, $cursor: String) {
+            repository(name: $repo_name, owner: $owner) {
+                defaultBranchRef {
+                    target {
+                        ... on Commit {
+                            history(first: 100, after: $cursor) {
+                                edges {
+                                    node {
+                                        ... on Commit {
+                                            author {
+                                                user {
+                                                    id
+                                                }
+                                            }
+                                            additions
+                                            deletions
                                         }
                                     }
-                                    deletions
-                                    additions
                                 }
-                            }
-                            pageInfo {
-                                endCursor
-                                hasNextPage
+                                pageInfo {
+                                    endCursor
+                                    hasNextPage
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }'''
-    variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
-    request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS) # I cannot use simple_request(), because I want to save the file before raising Exception
-    if request.status_code == 200:
-        if request.json()['data']['repository']['defaultBranchRef'] != None: # Only count commits if repo isn't empty
-            return loc_counter_one_repo(owner, repo_name, data, cache_comment, request.json()['data']['repository']['defaultBranchRef']['target']['history'], addition_total, deletion_total, my_commits)
-        else: return 0
-    force_close_file(data, cache_comment) # saves what is currently in the file before this program crashes
-    if request.status_code == 403:
-        raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
-    raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
+        }'''
+        
+        variables = {'repo_name': repo_name, 'owner': owner, 'cursor': cursor}
+        
+        try:
+            request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS, timeout=30)
+            
+            if request.status_code != 200:
+                force_close_file(data, cache_comment)
+                if request.status_code == 403:
+                    raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
+                raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
+            
+            repo_data = request.json()['data']['repository']
+            if repo_data['defaultBranchRef'] is None:
+                return addition_total, deletion_total, my_commits
+            
+            history = repo_data['defaultBranchRef']['target']['history']
+            
+            # Processar commits desta página
+            for node in history['edges']:
+                if node['node']['author']['user'] == OWNER_ID:
+                    my_commits += 1
+                    addition_total += node['node']['additions']
+                    deletion_total += node['node']['deletions']
+            
+            # Verificar se há mais páginas
+            if not history['pageInfo']['hasNextPage'] or len(history['edges']) == 0:
+                break
+                
+            cursor = history['pageInfo']['endCursor']
+            
+        except Exception as e:
+            print(f"[ERROR] Exception in recursive_loc for {owner}/{repo_name} at iteration {iteration_count}: {e}")
+            force_close_file(data, cache_comment)
+            break
+    
+    if iteration_count >= max_iterations:
+        print(f"[WARNING] Maximum iterations reached for {owner}/{repo_name}, stopping at {iteration_count} iterations")
+    
+    return addition_total, deletion_total, my_commits
 
 
-def loc_counter_one_repo(owner, repo_name, data, cache_comment, history, addition_total, deletion_total, my_commits):
-    """
-    Recursively call recursive_loc (since GraphQL can only search 100 commits at a time) 
-    only adds the LOC value of commits authored by me
-    """
-    for node in history['edges']:
-        if node['node']['author']['user'] == OWNER_ID:
-            my_commits += 1
-            addition_total += node['node']['additions']
-            deletion_total += node['node']['deletions']
-
-    if history['edges'] == [] or not history['pageInfo']['hasNextPage']:
-        return addition_total, deletion_total, my_commits
-    else: return recursive_loc(owner, repo_name, data, cache_comment, addition_total, deletion_total, my_commits, history['pageInfo']['endCursor'])
-
-
-def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None, edges=[]):
+def loc_query(owner_affiliation, comment_size=0, force_cache=False):
     """
     Uses GitHub's GraphQL v4 API to query all the repositories I have access to (with respect to owner_affiliation)
     Queries 60 repos at a time, because larger queries give a 502 timeout error and smaller queries send too many
     requests and also give a 502 error.
     Returns the total number of lines of code in all repositories
     """
-    query_count('loc_query')
-    query = '''
-    query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
-        user(login: $login) {
-            repositories(first: 60, after: $cursor, ownerAffiliations: $owner_affiliation) {
-            edges {
-                node {
-                    ... on Repository {
-                        nameWithOwner
-                        defaultBranchRef {
-                            target {
-                                ... on Commit {
-                                    history {
-                                        totalCount
+    all_edges = []
+    cursor = None
+    max_iterations = 100
+    iteration = 0
+    
+    while iteration < max_iterations:
+        iteration += 1
+        query_count('loc_query')
+        query = '''
+        query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
+            user(login: $login) {
+                repositories(first: 60, after: $cursor, ownerAffiliations: $owner_affiliation) {
+                edges {
+                    node {
+                        ... on Repository {
+                            nameWithOwner
+                            defaultBranchRef {
+                                target {
+                                    ... on Commit {
+                                        history {
+                                            totalCount
+                                            }
                                         }
                                     }
                                 }
@@ -229,15 +257,19 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
                     hasNextPage
                 }
             }
-        }
-    }'''
-    variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
-    request = simple_request(loc_query.__name__, query, variables)
-    if request.json()['data']['user']['repositories']['pageInfo']['hasNextPage']:   # If repository data has another page
-        edges += request.json()['data']['user']['repositories']['edges']            # Add on to the LoC count
-        return loc_query(owner_affiliation, comment_size, force_cache, request.json()['data']['user']['repositories']['pageInfo']['endCursor'], edges)
-    else:
-        return cache_builder(edges + request.json()['data']['user']['repositories']['edges'], comment_size, force_cache)
+        }'''
+        variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
+        request = simple_request(loc_query.__name__, query, variables)
+        
+        repo_data = request.json()['data']['user']['repositories']
+        all_edges += repo_data['edges']
+        
+        if not repo_data['pageInfo']['hasNextPage']:
+            break
+            
+        cursor = repo_data['pageInfo']['endCursor']
+    
+    return cache_builder(all_edges, comment_size, force_cache)
 
 
 def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
@@ -341,7 +373,7 @@ def stars_counter(data):
     return total_stars
 
 
-def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, countdown_data):
+def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib_data, follower_data, loc_data, countdown_data, spotify_data):
     """
     Parse SVG files and update elements with my age, commits, stars, repositories, and lines written
     """
@@ -351,13 +383,13 @@ def svg_overwrite(filename, age_data, commit_data, star_data, repo_data, contrib
     justify_format(root, 'age_data', age_data)
     justify_format(root, 'countdown_data', countdown_data)
     justify_format(root, 'commit_data', commit_data, 22)
-    justify_format(root, 'star_data', star_data, 14)
     justify_format(root, 'repo_data', repo_data, 6)
     justify_format(root, 'contrib_data', contrib_data)
-    justify_format(root, 'follower_data', follower_data, 10)
     justify_format(root, 'loc_data', loc_data[2], 9)
     justify_format(root, 'loc_add', loc_data[0])
     justify_format(root, 'loc_del', loc_data[1], 7)
+    spotify_display = f"{spotify_data.get('track', 'Nothing')} - {spotify_data.get('artist', 'Nobody')}"
+    justify_format(root, 'spotify_track', spotify_display)
     tree.write(filename, encoding='utf-8', xml_declaration=True)
     print(f"[DEBUG] SVG {filename} updated successfully")
 
@@ -474,57 +506,66 @@ def formatter(query_type, difference, funct_return=False, whitespace=0):
 
 
 if __name__ == '__main__':
+    try:
+        print('Calculation times:')
+        # define global variable for owner ID and calculate user's creation date
+        # e.g {'id': 'MDQ6VXNlcjU3MzMxMTM0'} and 2019-11-03T21:15:07Z for username 'Andrew6rant'
+        user_data, user_time = perf_counter(user_getter, USER_NAME)
+        OWNER_ID, acc_date = user_data
+        formatter('account data', user_time)
+        # CONFIGURAR: Sua data de nascimento (ano, mês, dia)
+        age_data, age_time = perf_counter(daily_readme, datetime.datetime(2002, 4, 23))
+        formatter('age calculation', age_time)
+        # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
+        countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 06, 10))
+        formatter('countdown to target', countdown_time)
+        total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
+        formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
+        commit_data, commit_time = perf_counter(commit_counter, 7)
+        repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
+        contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
+        
+        try:
+            spotify_data, spotify_time = perf_counter(format_current_playing)
+        except Exception as e:
+            print(f"[WARNING] Spotify data failed: {e}")
+            spotify_data, spotify_time = {'track': 'Error', 'artist': 'Error'}, 0
 
-    print('Calculation times:')
-    # define global variable for owner ID and calculate user's creation date
-    # e.g {'id': 'MDQ6VXNlcjU3MzMxMTM0'} and 2019-11-03T21:15:07Z for username 'Andrew6rant'
-    user_data, user_time = perf_counter(user_getter, USER_NAME)
-    OWNER_ID, acc_date = user_data
-    formatter('account data', user_time)
-    # CONFIGURAR: Sua data de nascimento (ano, mês, dia)
-    age_data, age_time = perf_counter(daily_readme, datetime.datetime(2002, 4, 23))
-    formatter('age calculation', age_time)
-    # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
-    countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2025, 12, 25))
-    formatter('countdown to target', countdown_time)
-    total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
-    formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
-    commit_data, commit_time = perf_counter(commit_counter, 7)
-    star_data, star_time = perf_counter(graph_repos_stars, 'stars', ['OWNER'])
-    repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
-    contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
-    follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
+        # several repositories that I've contributed to have since been deleted.
+        # CONFIGURAR: Substitua pelo seu ID do GitHub ou remova esta seção
+        if OWNER_ID == {'id': 'U_kgDOCgekhQ'}: # only calculate for user mxxnpy
+            archived_data = add_archive()
+            for index in range(len(total_loc)-1):
+                total_loc[index] += archived_data[index]
+            contrib_data += archived_data[-1]
+            commit_data += int(archived_data[-2])
 
-    # several repositories that I've contributed to have since been deleted.
-    # CONFIGURAR: Substitua pelo seu ID do GitHub ou remova esta seção
-    if OWNER_ID == {'id': 'U_kgDOCgekhQ'}: # only calculate for user mxxnpy
-        archived_data = add_archive()
-        for index in range(len(total_loc)-1):
-            total_loc[index] += archived_data[index]
-        contrib_data += archived_data[-1]
-        commit_data += int(archived_data[-2])
+        for index in range(len(total_loc)-1): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
-    for index in range(len(total_loc)-1): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
+        svg_overwrite('dark_mode.svg', age_data, commit_data, None, repo_data, contrib_data, None, total_loc[:-1], countdown_data, spotify_data)
+        svg_overwrite('light_mode.svg', age_data, commit_data, None, repo_data, contrib_data, None, total_loc[:-1], countdown_data, spotify_data)
 
-    svg_overwrite('dark_mode.svg', age_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1], countdown_data)
-    svg_overwrite('light_mode.svg', age_data, commit_data, star_data, repo_data, contrib_data, follower_data, total_loc[:-1], countdown_data)
+        # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
+        print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
+            '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + age_time + countdown_time + loc_time + commit_time + repo_time + contrib_time + spotify_time)),
+            ' s \033[E\033[E\033[E\033[E\033[E\033[E\033[E\033[E', sep='')
 
-    # move cursor to override 'Calculation times:' with 'Total function time:' and the total function time, then move cursor back
-    print('\033[F\033[F\033[F\033[F\033[F\033[F\033[F\033[F',
-        '{:<21}'.format('Total function time:'), '{:>11}'.format('%.4f' % (user_time + age_time + countdown_time + loc_time + commit_time + star_time + repo_time + contrib_time)),
-        ' s \033[E\033[E\033[E\033[E\033[E\033[E\033[E\033[E', sep='')
+        print('\n=== RESULTS ===')
+        print(f'Age: {age_data}')
+        print(f'Countdown: {countdown_data}')
+        print(f'Total commits: {commit_data:,}')
+        print(f'Repositories owned: {repo_data:,}')
+        print(f'Repositories contributed: {contrib_data:,}')
+        print(f'Lines added: {total_loc[0]}')
+        print(f'Lines deleted: {total_loc[1]}')
+        print(f'Total lines of code: {total_loc[2]}')
+        print(f'Spotify: {spotify_data.get("track", "Nothing")} - {spotify_data.get("artist", "Nobody")}')
 
-    print('\n=== RESULTS ===')
-    print(f'Age: {age_data}')
-    print(f'Countdown: {countdown_data}')
-    print(f'Total commits: {commit_data:,}')
-    print(f'Stars received: {star_data:,}')
-    print(f'Repositories owned: {repo_data:,}')
-    print(f'Repositories contributed: {contrib_data:,}')
-    print(f'Followers: {follower_data:,}')
-    print(f'Lines added: {total_loc[0]}')
-    print(f'Lines deleted: {total_loc[1]}')
-    print(f'Total lines of code: {total_loc[2]}')
-
-    print('\nTotal GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
-    for funct_name, count in QUERY_COUNT.items(): print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
+        print('\nTotal GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
+        for funct_name, count in QUERY_COUNT.items(): print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
+        
+    except Exception as e:
+        print(f"[CRITICAL ERROR] Script failed: {e}")
+        print("Attempting to continue with partial data...")
+        import traceback
+        traceback.print_exc()
