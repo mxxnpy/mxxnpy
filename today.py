@@ -235,15 +235,16 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False):
         query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
             user(login: $login) {
                 repositories(first: 60, after: $cursor, ownerAffiliations: $owner_affiliation) {
-                edges {
-                    node {
-                        ... on Repository {
-                            nameWithOwner
-                            defaultBranchRef {
-                                target {
-                                    ... on Commit {
-                                        history {
-                                            totalCount
+                    edges {
+                        node {
+                            ... on Repository {
+                                nameWithOwner
+                                defaultBranchRef {
+                                    target {
+                                        ... on Commit {
+                                            history {
+                                                totalCount
+                                                }
                                             }
                                         }
                                     }
@@ -251,10 +252,10 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False):
                             }
                         }
                     }
-                }
-                pageInfo {
-                    endCursor
-                    hasNextPage
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
                 }
             }
         }'''
@@ -553,14 +554,23 @@ if __name__ == '__main__':
 
         # several repositories that I've contributed to have since been deleted.
         # CONFIGURAR: Substitua pelo seu ID do GitHub ou remova esta seção
-        if OWNER_ID == {'id': 'U_kgDOCgekhQ'}: # only calculate for user mxxnpy
-            archived_data = add_archive()
-            for index in range(len(total_loc)-1):
-                total_loc[index] += archived_data[index]
-            contrib_data += archived_data[-1]
-            commit_data += int(archived_data[-2])
+        try:
+            if OWNER_ID == {'id': 'U_kgDOCgekhQ'}: # only calculate for user mxxnpy
+                archived_data = add_archive()
+                for index in range(min(len(total_loc)-1, len(archived_data))):
+                    total_loc[index] += archived_data[index]
+                contrib_data += archived_data[-1]
+                commit_data += int(archived_data[-2])
+        except Exception as e:
+            print(f"[WARNING] Archive data failed: {e}")
 
-        for index in range(len(total_loc)-1): total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
+        # Garantir que total_loc tenha pelo menos 4 elementos
+        if len(total_loc) < 4:
+            total_loc = [0, 0, 0, False]
+            
+        for index in range(len(total_loc)-1): 
+            if isinstance(total_loc[index], int):
+                total_loc[index] = '{:,}'.format(total_loc[index]) # format added, deleted, and total LOC
 
         svg_overwrite('dark_mode.svg', age_data, commit_data, None, repo_data, contrib_data, None, total_loc[:-1], countdown_data, spotify_data)
         svg_overwrite('light_mode.svg', age_data, commit_data, None, repo_data, contrib_data, None, total_loc[:-1], countdown_data, spotify_data)
