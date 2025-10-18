@@ -249,7 +249,6 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False):
                                         ... on Commit {
                                             history {
                                                 totalCount
-                                                }
                                             }
                                         }
                                     }
@@ -308,24 +307,28 @@ def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
 
     cache_comment = data[:comment_size] # save the comment block
     data = data[comment_size:] # remove those lines
-    for index in range(len(edges)):
+    for index in range(min(len(edges), len(data))):
+        if index >= len(data):
+            break
         repo_hash, commit_count, *__ = data[index].split()
         if repo_hash == hashlib.sha256(edges[index]['node']['nameWithOwner'].encode('utf-8')).hexdigest():
             try:
-                if int(commit_count) != edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']:
-                    # if commit count has changed, update loc for that repo
-                    owner, repo_name = edges[index]['node']['nameWithOwner'].split('/')
-                    loc = recursive_loc(owner, repo_name, data, cache_comment)
-                    data[index] = repo_hash + ' ' + str(edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
-            except TypeError: # If the repo is empty
+                if edges[index]['node']['defaultBranchRef'] and edges[index]['node']['defaultBranchRef']['target']:
+                    if int(commit_count) != edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']:
+                        # if commit count has changed, update loc for that repo
+                        owner, repo_name = edges[index]['node']['nameWithOwner'].split('/')
+                        loc = recursive_loc(owner, repo_name, data, cache_comment)
+                        data[index] = repo_hash + ' ' + str(edges[index]['node']['defaultBranchRef']['target']['history']['totalCount']) + ' ' + str(loc[2]) + ' ' + str(loc[0]) + ' ' + str(loc[1]) + '\n'
+            except (TypeError, KeyError): # If the repo is empty or has no branch
                 data[index] = repo_hash + ' 0 0 0 0\n'
     with open(filename, 'w') as f:
         f.writelines(cache_comment)
         f.writelines(data)
     for line in data:
         loc = line.split()
-        loc_add += int(loc[3])
-        loc_del += int(loc[4])
+        if len(loc) >= 5:
+            loc_add += int(loc[3])
+            loc_del += int(loc[4])
     return [loc_add, loc_del, loc_add - loc_del, cached]
 
 
@@ -530,9 +533,12 @@ if __name__ == '__main__':
         # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
         countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 6, 10))
         formatter('countdown to target', countdown_time)
-        # TEMPORARIAMENTE DESABILITADO - GraphQL com problema
-        print("[INFO] LOC query temporarily disabled due to GraphQL issues")
-        total_loc, loc_time = [0, 0, 0, False], 0
+        try:
+            total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
+            formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
+        except Exception as e:
+            print(f"[WARNING] LOC query failed: {e}")
+            total_loc, loc_time = [0, 0, 0, False], 0
             
         try:
             commit_data, commit_time = perf_counter(commit_counter, 7)
