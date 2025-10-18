@@ -72,6 +72,11 @@ def simple_request(func_name, query, variables):
             print(f"[ERROR] GraphQL errors in {func_name}: {response_data['errors']}")
             print(f"[DEBUG] Query: {query}")
             print(f"[DEBUG] Variables: {variables}")
+            # Se for rate limit, não é um erro fatal
+            for error in response_data['errors']:
+                if error.get('type') == 'RATE_LIMIT':
+                    print(f"[WARNING] Rate limit exceeded, skipping {func_name}")
+                    return request
         return request
     raise Exception(func_name, ' has failed with a', request.status_code, request.text, QUERY_COUNT)
 
@@ -129,7 +134,25 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, all_edges=None
     variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
     request = simple_request(graph_repos_stars.__name__, query, variables)
     if request.status_code == 200:
-        repo_data = request.json()['data']['user']['repositories']
+        response_data = request.json()
+        if 'errors' in response_data:
+            # Se houve rate limit, retornar o que temos até agora
+            for error in response_data['errors']:
+                if error.get('type') == 'RATE_LIMIT':
+                    print(f"[WARNING] Rate limit in graph_repos_stars, returning partial results")
+                    if count_type == 'repos':
+                        return len(all_edges)
+                    elif count_type == 'stars':
+                        return stars_counter(all_edges)
+        
+        if 'data' not in response_data or not response_data['data']:
+            print(f"[ERROR] No data in response: {response_data}")
+            if count_type == 'repos':
+                return len(all_edges)
+            elif count_type == 'stars':
+                return stars_counter(all_edges)
+        
+        repo_data = response_data['data']['user']['repositories']
         all_edges += repo_data['edges']
         
         # Se há mais páginas, buscar recursivamente
@@ -200,7 +223,6 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
             request = requests.post('https://api.github.com/graphql', json={'query': query, 'variables':variables}, headers=HEADERS, timeout=30)
             
             if request.status_code != 200:
-                force_close_file(data, cache_comment)
                 if request.status_code == 403:
                     raise Exception('Too many requests in a short amount of time!\nYou\'ve hit the non-documented anti-abuse limit!')
                 raise Exception('recursive_loc() has failed with a', request.status_code, request.text, QUERY_COUNT)
@@ -226,7 +248,6 @@ def recursive_loc(owner, repo_name, data, cache_comment, addition_total=0, delet
             
         except Exception as e:
             print(f"[ERROR] Exception in recursive_loc for {owner}/{repo_name} at iteration {iteration_count}: {e}")
-            force_close_file(data, cache_comment)
             break
     
     if iteration_count >= max_iterations:
