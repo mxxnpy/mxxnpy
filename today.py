@@ -261,7 +261,12 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False):
         variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
         request = simple_request(loc_query.__name__, query, variables)
         
-        repo_data = request.json()['data']['user']['repositories']
+        response_data = request.json()
+        if 'data' not in response_data or not response_data['data']:
+            print(f"[ERROR] Invalid API response: {response_data}")
+            break
+            
+        repo_data = response_data['data']['user']['repositories']
         all_edges += repo_data['edges']
         
         if not repo_data['pageInfo']['hasNextPage']:
@@ -519,11 +524,26 @@ if __name__ == '__main__':
         # CONFIGURAR: Data alvo para contagem regressiva (ano, mês, dia)
         countdown_data, countdown_time = perf_counter(countdays, datetime.datetime(2026, 6, 10))
         formatter('countdown to target', countdown_time)
-        total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
-        formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
-        commit_data, commit_time = perf_counter(commit_counter, 7)
-        repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
-        contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
+        try:
+            total_loc, loc_time = perf_counter(loc_query, ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'], 7)
+            formatter('LOC (cached)', loc_time) if total_loc[-1] else formatter('LOC (no cache)', loc_time)
+        except Exception as e:
+            print(f"[WARNING] LOC query failed: {e}")
+            total_loc, loc_time = [0, 0, 0, False], 0
+            
+        try:
+            commit_data, commit_time = perf_counter(commit_counter, 7)
+        except Exception as e:
+            print(f"[WARNING] Commit counter failed: {e}")
+            commit_data, commit_time = 0, 0
+            
+        try:
+            repo_data, repo_time = perf_counter(graph_repos_stars, 'repos', ['OWNER'])
+            contrib_data, contrib_time = perf_counter(graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
+        except Exception as e:
+            print(f"[WARNING] Repository data failed: {e}")
+            repo_data, repo_time = 0, 0
+            contrib_data, contrib_time = 0, 0
         
         try:
             spotify_data, spotify_time = perf_counter(format_current_playing)
