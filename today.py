@@ -96,17 +96,19 @@ def graph_commits(start_date, end_date):
     return int(request.json()['data']['user']['contributionsCollection']['contributionCalendar']['totalContributions'])
 
 
-def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del_loc=0):
+def graph_repos_stars(count_type, owner_affiliation, cursor=None, all_edges=None):
     """
     Uses GitHub's GraphQL v4 API to return my total repository, star, or lines of code count.
     """
-    print(f"[DEBUG] Getting {count_type} data...")
+    if all_edges is None:
+        all_edges = []
+        print(f"[DEBUG] Getting {count_type} data...")
+    
     query_count('graph_repos_stars')
     query = '''
     query ($owner_affiliation: [RepositoryAffiliation], $login: String!, $cursor: String) {
         user(login: $login) {
             repositories(first: 100, after: $cursor, ownerAffiliations: $owner_affiliation) {
-                totalCount
                 edges {
                     node {
                         ... on Repository {
@@ -127,12 +129,24 @@ def graph_repos_stars(count_type, owner_affiliation, cursor=None, add_loc=0, del
     variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
     request = simple_request(graph_repos_stars.__name__, query, variables)
     if request.status_code == 200:
+        repo_data = request.json()['data']['user']['repositories']
+        all_edges += repo_data['edges']
+        
+        # Se há mais páginas, buscar recursivamente
+        if repo_data['pageInfo']['hasNextPage']:
+            return graph_repos_stars(count_type, owner_affiliation, repo_data['pageInfo']['endCursor'], all_edges)
+        
+        # Retornar resultado final
         if count_type == 'repos':
-            result = request.json()['data']['user']['repositories']['totalCount']
-            print(f"[DEBUG] {count_type} result: {result}")
+            result = len(all_edges)
+            print(f"[DEBUG] {count_type} result: {result} (affiliations: {owner_affiliation})")
+            # Debug: mostrar alguns repositórios encontrados
+            if len(all_edges) > 0:
+                sample_repos = [edge['node']['nameWithOwner'] for edge in all_edges[:5]]
+                print(f"[DEBUG] Sample repos: {sample_repos}")
             return result
         elif count_type == 'stars':
-            result = stars_counter(request.json()['data']['user']['repositories']['edges'])
+            result = stars_counter(all_edges)
             print(f"[DEBUG] {count_type} result: {result}")
             return result
 
