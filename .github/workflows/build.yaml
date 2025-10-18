@@ -33,11 +33,18 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           USER_NAME: ${{ secrets.USER_NAME }}
         run: python today.py
+      - name: Update README with timestamp
+        run: |-
+          # Atualizar README com timestamp para quebrar cache
+          TIMESTAMP=$(date +%s)
+          sed -i "s|main/dark_mode\.svg.*\"|main/dark_mode.svg?t=$TIMESTAMP\"|g" README.md
+          sed -i "s|main/light_mode\.svg.*\"|main/light_mode.svg?t=$TIMESTAMP\"|g" README.md
+          
       - name: Commit
         run: |-
           git add .
           git diff
           git config --global user.email "github-actions-bot@mxxnpy.github.io"
           git config --global user.name "mxxnpy/GitHub-Actions-Bot"
-          git commit -m "Updated README" -a || echo "No changes to commit"
+          git commit -m "📊 Updated GitHub Stats" -a || echo "No changes to commit"
           git push

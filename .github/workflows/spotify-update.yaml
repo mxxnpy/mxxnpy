@@ -38,9 +38,16 @@ jobs:
       - name: Update Spotify only
         run: python spotify_update.py
         
+      - name: Update README with timestamp
+        run: |-
+          # Atualizar README com timestamp para quebrar cache
+          TIMESTAMP=$(date +%s)
+          sed -i "s|main/dark_mode\.svg.*\"|main/dark_mode.svg?t=$TIMESTAMP\"|g" README.md
+          sed -i "s|main/light_mode\.svg.*\"|main/light_mode.svg?t=$TIMESTAMP\"|g" README.md
+          
       - name: Commit Spotify changes
         run: |-
-          git add *.svg
+          git add *.svg README.md
           git diff --cached --quiet || (
             git config --global user.email "github-actions-bot@mxxnpy.github.io"
             git config --global user.name "mxxnpy/Spotify-Bot"
