@@ -28,7 +28,7 @@ text, tspan {white-space: pre;}
 <tspan x="50" y="210" class="cc">. </tspan>
 <tspan x="50" y="230" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Gaming</tspan>:<tspan class="cc"> ............... </tspan><tspan class="value">Valorant, LoL</tspan>
 <tspan x="50" y="250" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Music</tspan>:<tspan class="cc"> ................. </tspan><tspan class="value">Drums, Guitar</tspan>
-<tspan x="50" y="270" class="cc">. </tspan><tspan class="key">Currently</tspan>.<tspan class="key">Playing</tspan>:<tspan class="cc" id="spotify_track_dots"/><tspan class="value" id="spotify_track">THE RIDE - Omido, Kae</tspan>
+<tspan x="50" y="270" class="cc">. </tspan><tspan class="key">Currently</tspan>.<tspan class="key">Playing</tspan>:<tspan class="cc" id="spotify_track_dots"/><tspan class="value" id="spotify_track">Sextape - Deftones</tspan>
 <tspan x="50" y="290" class="cc">. </tspan><tspan class="key">Countdown</tspan>:<tspan class="cc" id="countdown_data_dots"/><tspan class="value" id="countdown_data">209 days remaining</tspan>
 <tspan x="50" y="310">- Contact</tspan> ————————————————————————————————————————————————————————————————————————————————————————————————————————
 <tspan x="50" y="330" class="cc">. </tspan><tspan class="key">GitHub</tspan>:<tspan class="cc"> ............................ </tspan><tspan class="value">github.com/mxxnpy</tspan>
