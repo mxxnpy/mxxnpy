@@ -18,7 +18,7 @@ text, tspan {white-space: pre;}
 <text x="50" y="30" fill="#f6f8fa">
 <tspan x="50" y="30">mxxnpy</tspan> ————————————————————————————————————————————————————————————————————————————————————————————————————————
 <tspan x="50" y="50" class="cc">. </tspan><tspan class="key">Role</tspan>:<tspan class="cc"> ........................... </tspan><tspan class="value">FullStack Developer</tspan>
-<tspan x="50" y="70" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"/><tspan class="value" id="age_data">23 years, 9 months, 0 days</tspan>
+<tspan x="50" y="70" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"></tspan><tspan class="value" id="age_data">23 years, 9 months, 0 days</tspan>
 <tspan x="50" y="90" class="cc">. </tspan><tspan class="key">Stack</tspan>:<tspan class="cc"> .......................... </tspan><tspan class="value">C#, TypeScript, Python</tspan>
 <tspan x="50" y="110" class="cc">. </tspan><tspan class="key">Focus</tspan>:<tspan class="cc"> .......................... </tspan><tspan class="value">AI, Data, Hardware</tspan>
 <tspan x="50" y="130" class="cc">. </tspan><tspan class="key">IDE</tspan>:<tspan class="cc"> ........................... </tspan><tspan class="value">VS, VSCode, WebStorm</tspan>
@@ -28,8 +28,8 @@ text, tspan {white-space: pre;}
 <tspan x="50" y="210" class="cc">. </tspan>
 <tspan x="50" y="230" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Gaming</tspan>:<tspan class="cc"> ............... </tspan><tspan class="value">Valorant, LoL</tspan>
 <tspan x="50" y="250" class="cc">. </tspan><tspan class="key">Hobbies</tspan>.<tspan class="key">Music</tspan>:<tspan class="cc"> ................. </tspan><tspan class="value">Drums, Guitar</tspan>
-<tspan x="50" y="270" class="cc">. </tspan><tspan class="key">Currently</tspan>.<tspan class="key">Playing</tspan>:<tspan class="cc" id="spotify_track_dots"/><tspan class="value" id="spotify_track">Mar - pumapjl, Babidi</tspan>
-<tspan x="50" y="290" class="cc">. </tspan><tspan class="key">Countdown</tspan>:<tspan class="cc" id="countdown_data_dots"/><tspan class="value" id="countdown_data">137 days remaining</tspan>
+<tspan x="50" y="270" class="cc">. </tspan><tspan class="key">Currently</tspan>.<tspan class="key">Playing</tspan>:<tspan class="cc" id="spotify_track_dots"></tspan><tspan class="value" id="spotify_track">Praga - pumapjl, Novin, wavybil</tspan>
+<tspan x="50" y="290" class="cc">. </tspan><tspan class="key">Countdown</tspan>:<tspan class="cc" id="countdown_data_dots"></tspan><tspan class="value" id="countdown_data">137 days remaining</tspan>
 <tspan x="50" y="310">- Contact</tspan> ————————————————————————————————————————————————————————————————————————————————————————————————————————
 <tspan x="50" y="330" class="cc">. </tspan><tspan class="key">GitHub</tspan>:<tspan class="cc"> ............................ </tspan><tspan class="value">github.com/mxxnpy</tspan>
 <tspan x="50" y="350" class="cc">. </tspan><tspan class="key">Discord</tspan>:<tspan class="cc"> ........................... </tspan><tspan class="value">mxxn.py</tspan>
