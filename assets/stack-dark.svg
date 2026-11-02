@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="318" viewBox="0 0 900 318" role="img" aria-label="Stack. Backend: C# / .NET, ASP.NET Core, Node.js, Python. Frontend: TypeScript, Angular, React. Data: PostgreSQL, SQL Server, RabbitMQ, Redis. Infra: Docker, Kubernetes, AWS, GitHub Actions, Grafana." font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>Stack. Backend: C# / .NET, ASP.NET Core, Node.js, Python. Frontend: TypeScript, Angular, React. Data: PostgreSQL, SQL Server, RabbitMQ, Redis. Infra: Docker, Kubernetes, AWS, GitHub Actions, Grafana.</title>
+<style>
+text { white-space: pre; }
+.label { fill: #8a90a8; font-size: 15px; letter-spacing: .18em; }
+.rule { stroke: #1d2133; }
+.area { fill: #8a90a8; font-size: 19px; } .tools { fill: #e8e4d8; font-size: 21px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="899" height="303" rx="16" fill="#0b0d17" stroke="#1d2133"/>
+<text class="label" x="48" y="56">STACK</text>
+<line class="rule" x1="122" y1="51" x2="852" y2="51"/>
+<text class="area" x="48" y="100">Backend</text><text class="tools" x="218" y="100">C# / .NET, ASP.NET Core, Node.js, Python</text>
+<line class="rule" x1="48" y1="120" x2="852" y2="120"/>
+<text class="area" x="48" y="152">Frontend</text><text class="tools" x="218" y="152">TypeScript, Angular, React</text>
+<line class="rule" x1="48" y1="172" x2="852" y2="172"/>
+<text class="area" x="48" y="204">Data</text><text class="tools" x="218" y="204">PostgreSQL, SQL Server, RabbitMQ, Redis</text>
+<line class="rule" x1="48" y1="224" x2="852" y2="224"/>
+<text class="area" x="48" y="256">Infra</text><text class="tools" x="218" y="256">Docker, Kubernetes, AWS, GitHub Actions, Grafana</text>
+</svg>

@@ -3,23 +3,29 @@
 Autoriza o card "Now playing" a ler o seu Spotify e grava as credenciais
 como Secrets do repositório no GitHub. Rode uma vez (ou quando trocar o secret):
 
-    python spotify_auth.py
+    python spotify_auth.py                # grava no GitHub
+    python spotify_auth.py --cloudflare   # grava no GitHub e no Worker (worker/)
 
 Requisitos: gh logado (gh auth status) e um app em developer.spotify.com/dashboard
-com o Redirect URI http://127.0.0.1:8888/callback cadastrado.
+com o Redirect URI http://127.0.0.1:8888/callback cadastrado. Para --cloudflare,
+`npx wrangler login` feito antes, na conta certa (confira com `npx wrangler whoami`).
 Nenhum token é impresso nem salvo em arquivo.
 """
 import base64
 import getpass
 import http.server
 import json
+import os
 import secrets
+import shutil
 import subprocess
+import sys
 import urllib.parse
 import urllib.request
 import webbrowser
 
 REPO = 'mxxnpy/mxxnpy'
+WORKER_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'worker')
 REDIRECT_URI = 'http://127.0.0.1:8888/callback'
 SCOPES = 'user-read-currently-playing user-read-recently-played'
 
@@ -82,10 +88,19 @@ def main():
     webbrowser.open(url)
     refresh_token = exchange(wait_for_code(state), client_id, client_secret)
 
+    values = {'SPOTIFY_CLIENT_ID': client_id, 'SPOTIFY_CLIENT_SECRET': client_secret,
+              'SPOTIFY_REFRESH_TOKEN': refresh_token}
     print(f'Gravando secrets em {REPO}:')
-    set_secret('SPOTIFY_CLIENT_ID', client_id)
-    set_secret('SPOTIFY_CLIENT_SECRET', client_secret)
-    set_secret('SPOTIFY_REFRESH_TOKEN', refresh_token)
+    for name, value in values.items():
+        set_secret(name, value)
+
+    if '--cloudflare' in sys.argv:
+        npx = shutil.which('npx') or 'npx'
+        print('Gravando secrets no Worker (Cloudflare):')
+        for name, value in values.items():
+            subprocess.run([npx, 'wrangler', 'secret', 'put', name], input=value.encode(), cwd=WORKER_DIR,
+                           check=True, stdout=subprocess.DEVNULL)
+            print(f'  ✓ {name}')
 
     subprocess.run(['gh', 'workflow', 'run', 'spotify-update.yaml', '-R', REPO], check=False)
     print('\nFeito. O card atualiza em ~1 minuto e depois a cada execução agendada do GitHub.')

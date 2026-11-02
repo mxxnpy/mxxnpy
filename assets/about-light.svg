@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="376" viewBox="0 0 900 376" role="img" aria-label="I work mostly on the backend: APIs, databases, message queues, and the deploy and monitoring setup around them. I also do frontend work, mainly in Angular and React. Almost all of my work lives in private company repos, so what you see here are side projects. I'm moving them to ayule.dev. Outside of work I play drums and guitar." font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>I work mostly on the backend: APIs, databases, message queues, and the deploy and monitoring setup around them. I also do frontend work, mainly in Angular and React. Almost all of my work lives in private company repos, so what you see here are side projects. I'm moving them to ayule.dev. Outside of work I play drums and guitar.</title>
+<style>
+text { white-space: pre; }
+.label { fill: #5f6477; font-size: 15px; letter-spacing: .18em; }
+.rule { stroke: #e2ddcf; }
+.body { fill: #1c1e2a; font-size: 21px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="899" height="361" rx="16" fill="#f7f5ef" stroke="#e2ddcf"/>
+<text class="label" x="48" y="56">ABOUT</text>
+<line class="rule" x1="122" y1="51" x2="852" y2="51"/>
+<text class="body" x="48" y="84">I work mostly on the backend: APIs, databases, message queues,</text>
+<text class="body" x="48" y="118">and the deploy and monitoring setup around them. I also do</text>
+<text class="body" x="48" y="152">frontend work, mainly in Angular and React.</text>
+<text class="body" x="48" y="204">Almost all of my work lives in private company repos, so what</text>
+<text class="body" x="48" y="238">you see here are side projects. I'm moving them to ayule.dev.</text>
+<text class="body" x="48" y="290">Outside of work I play drums and guitar.</text>
+</svg>

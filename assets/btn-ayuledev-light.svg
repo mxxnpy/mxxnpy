@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="188" height="70" viewBox="0 0 188 70" role="img" aria-label="ayule.dev" font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>ayule.dev</title>
+<style>
+text { white-space: pre; }
+.label { fill: #5f6477; font-size: 15px; letter-spacing: .18em; }
+.rule { stroke: #e2ddcf; }
+.btn { fill: #1c1e2a; font-size: 20px; } .arrow { fill: #a87516; font-size: 20px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="187" height="55" rx="16" fill="#f7f5ef" stroke="#e2ddcf"/>
+<text class="btn" x="22" y="35">ayule.dev</text><text class="arrow" x="152" y="35">↗</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="176" height="70" viewBox="0 0 176 70" role="img" aria-label="LinkedIn" font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>LinkedIn</title>
+<style>
+text { white-space: pre; }
+.label { fill: #8a90a8; font-size: 15px; letter-spacing: .18em; }
+.rule { stroke: #1d2133; }
+.btn { fill: #e8e4d8; font-size: 20px; } .arrow { fill: #f1d79a; font-size: 20px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="175" height="55" rx="16" fill="#0b0d17" stroke="#1d2133"/>
+<text class="btn" x="22" y="35">LinkedIn</text><text class="arrow" x="140" y="35">↗</text>
+</svg>

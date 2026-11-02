@@ -1,9 +1,9 @@
 """
-Marca do perfil: lua crescente em ASCII, hero e card "Now playing".
+Painéis SVG do perfil (light/dark). O texto de cada painel fica em CONTENT.
 
-    python brand.py            # regenera assets/ (hero, logo e um card de exemplo)
+    python brand.py            # regenera assets/
 
-spotify_update.py usa render_now_playing() para reescrever só o card de música.
+O card de música é servido ao vivo pelo Worker em worker/ (mesmo visual).
 """
 import math
 import os
@@ -11,71 +11,77 @@ from xml.sax.saxutils import escape
 
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
 FONT = "ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+W = 900          # largura de todos os painéis
+PAD = 48
+CHAR = 0.6       # largura de um caractere monoespaçado em em
 
 THEMES = {
-    'dark': dict(bg='#0b0d17', border='#1d2133', ink='#e8e4d8', dim='#737a94', faint='#3a3f55',
-                 moon='#f1d79a', star='#9aa3c7', glow='#f1d79a'),
-    'light': dict(bg='#f7f5ef', border='#e2ddcf', ink='#1c1e2a', dim='#6e7386', faint='#c9c3b2',
-                  moon='#8a5f12', star='#9b916f', glow='#d9b25c'),
+    'dark': dict(bg='#0b0d17', border='#1d2133', ink='#e8e4d8', dim='#8a90a8', faint='#3a3f55',
+                 moon='#f1d79a', shadow='#262b40', star='#9aa3c7'),
+    'light': dict(bg='#f7f5ef', border='#e2ddcf', ink='#1c1e2a', dim='#5f6477', faint='#cfc9b8',
+                  moon='#a87516', shadow='#e3ddcd', star='#b3a77f'),
+}
+
+CONTENT = {
+    'name': 'Ayu',
+    'role': 'Full-stack engineer, São Paulo',
+    'line': 'I build backend systems and the interfaces on top of them.',
+    'about': [
+        'I work mostly on the backend: APIs, databases, message queues, and the deploy and '
+        'monitoring setup around them. I also do frontend work, mainly in Angular and React.',
+        'Almost all of my work lives in private company repos, so what you see here are side '
+        'projects. I\'m moving them to ayule.dev.',
+        'Outside of work I play drums and guitar.',
+    ],
+    'stack': [
+        ('Backend', 'C# / .NET, ASP.NET Core, Node.js, Python'),
+        ('Frontend', 'TypeScript, Angular, React'),
+        ('Data', 'PostgreSQL, SQL Server, RabbitMQ, Redis'),
+        ('Infra', 'Docker, Kubernetes, AWS, GitHub Actions, Grafana'),
+    ],
+    'projects': [
+        ('Patinhas', 'Adoption platform for animal shelters. Restarting it.'),
+        ('AyuLab', 'My dev environment: tooling, templates and a task board.'),
+        ('Ayu Source', 'Portfolio, at ayule.dev.'),
+        ('Lumen', 'Research tool that pulls sources together into a written report.'),
+        ('Multi-agent coding IDE', 'An editor where several agents work on one task at the same time.'),
+        ('Doll Maker', 'Write scripts and plan campaigns in one place.'),
+        ('AyuBounty', 'Early design.'),
+    ],
+    'buttons': [('ayule.dev', 'https://ayule.dev'),
+                ('LinkedIn', 'https://www.linkedin.com/in/mxxnlea/'),
+                ('Email', 'mailto:ayu.leandro@ayule.dev')],
 }
 
 REDUCED_MOTION = '@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }'
 
 
-def crescent(rows=22, cols=40, cw=7.8, ch=13.0):
-    """Lua crescente em ASCII. Devolve (linhas, estrelas) com estrelas como (linha, coluna, char)."""
-    cx, cy = cols * cw / 2, rows * ch / 2
-    r = min(cx, cy) - ch * 0.6
-    bx, by, br = cx + 0.62 * r, cy - 0.18 * r, 0.92 * r      # disco que "come" a lua
-    ramp = '.:-=+*#%@'
-    craters = [(cx - 0.62 * r, cy - 0.30 * r, 0.13 * r), (cx - 0.45 * r, cy + 0.50 * r, 0.10 * r)]
-    stars = [(0, 3, '+'), (1, 33, '.'), (3, 38, '*'), (19, 37, '+'), (21, 9, '.'),
-             (18, 0, '.'), (6, 0, '.'), (11, 39, '.'), (21, 28, '*')]
-    lines = []
-    for row in range(rows):
-        line = ''
-        for col in range(cols):
-            px, py = (col + 0.5) * cw, (row + 0.5) * ch
-            da = math.hypot(px - cx, py - cy)
-            db = math.hypot(px - bx, py - by)
-            if da <= r and db > br:
-                lit = min(1.0, (db - br) / (0.55 * r))        # mais claro longe do terminador
-                limb = 1.0 - max(0.0, (da / r) - 0.85) * 2.5   # escurece na borda
-                v = max(0.0, lit * limb)
-                if any(math.hypot(px - x, py - y) < cr for x, y, cr in craters):
-                    v *= 0.7
-                line += ramp[min(len(ramp) - 1, int(v * len(ramp)))]
-            elif r - ch * 0.8 <= da <= r and db <= br and col % 2 == 0:
-                line += '.'                                    # contorno da parte em sombra
-            else:
-                line += ' '
-        lines.append(line.rstrip())
-    return lines, stars
+def wrap(text, size, width):
+    """Quebra texto para caber em 'width' px numa fonte monoespaçada de 'size' px."""
+    limit = int(width / (size * CHAR))
+    lines, line = [], ''
+    for word in text.split():
+        if line and len(line) + 1 + len(word) > limit:
+            lines.append(line)
+            line = word
+        else:
+            line = f'{line} {word}'.strip()
+    return lines + [line] if line else lines
 
 
-def moon_group(x, y, size=13, stagger=True):
-    """<g> com a lua, linhas surgindo em sequência e estrelas piscando."""
-    lines, stars = crescent(ch=size)
-    cw = size * 0.6
-    out = [f'<g class="moon" font-size="{size}">']
-    for i, line in enumerate(lines):
-        if line.strip():
-            delay = f' style="animation-delay:{i * 45}ms"' if stagger else ''
-            out.append(f'<text class="row" x="{x}" y="{y + (i + 1) * size}"{delay}>{escape(line)}</text>')
-    for n, (row, col, ch) in enumerate(stars):
-        out.append(f'<text class="star" x="{x + col * cw:.1f}" y="{y + (row + 1) * size}" '
-                   f'style="animation-delay:{(n * 0.7) % 4:.1f}s">{escape(ch)}</text>')
-    out.append('</g>')
-    return '\n'.join(out)
+GAP = 14         # respiro transparente abaixo de cada painel (o GitHub empilha as imagens coladas)
 
 
-def _svg(w, h, t, style, body, title, frame=True):
-    rect = (f'<rect x="0.5" y="0.5" width="{w - 1}" height="{h - 1}" rx="14" fill="{t["bg"]}" stroke="{t["border"]}"/>\n'
+def svg(w, h, t, style, body, title, frame=True):
+    rect = (f'<rect x="0.5" y="0.5" width="{w - 1}" height="{h - 1}" rx="16" fill="{t["bg"]}" stroke="{t["border"]}"/>\n'
             if frame else '')
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{escape(title)}" font-family="{FONT}">
+    total = h + (GAP if frame else 0)
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{total}" viewBox="0 0 {w} {total}" role="img" aria-label="{escape(title)}" font-family="{FONT}">
 <title>{escape(title)}</title>
 <style>
 text {{ white-space: pre; }}
+.label {{ fill: {t['dim']}; font-size: 15px; letter-spacing: .18em; }}
+.rule {{ stroke: {t['border']}; }}
 {style}
 {REDUCED_MOTION}
 </style>
@@ -84,42 +90,121 @@ text {{ white-space: pre; }}
 """
 
 
+def label(text, y, w=W):
+    return (f'<text class="label" x="{PAD}" y="{y}">{escape(text)}</text>\n'
+            f'<line class="rule" x1="{PAD + len(text) * 15 * (CHAR + .18) + 16:.0f}" y1="{y - 5}" x2="{w - PAD}" y2="{y - 5}"/>')
+
+
+# ---------- lua (provisória: retícula de pontos, até a logo nova) ----------
+def moon_dots(cx, cy, r, t):
+    bx, by, br = cx + 0.42 * r, cy - 0.16 * r, 0.88 * r
+    step = r / 10
+    out = []
+    n = int(r / step) + 1
+    for j in range(-n, n + 1):
+        for i in range(-n, n + 1):
+            x = cx + i * step + (step / 2 if j % 2 else 0)
+            y = cy + j * step * 0.87
+            if math.hypot(x - cx, y - cy) > r - step * 0.3:
+                continue
+            db = math.hypot(x - bx, y - by)
+            if db > br + step * 0.25:
+                v = min(1.0, (db - br) / (0.45 * r))
+                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{step * 0.46 * (0.4 + 0.6 * v):.2f}" fill="{t["moon"]}"/>')
+    for k, (dx, dy, s) in enumerate([(1.15, -0.85, 2.2), (1.45, 0.25, 1.6), (0.75, 1.15, 1.4), (-1.2, -1.0, 1.4)]):
+        out.append(f'<circle class="star" cx="{cx + dx * r:.1f}" cy="{cy + dy * r:.1f}" r="{s}" fill="{t["star"]}" '
+                   f'style="animation-delay:{k * 0.9:.1f}s"/>')
+    return '\n'.join(out)
+
+
+# ---------- painéis ----------
 def render_hero(theme):
     t = THEMES[theme]
-    w, h = 1000, 330
+    h = 300
     style = f"""
-.moon .row {{ fill: {t['moon']}; animation: rise .9s cubic-bezier(.16,1,.3,1) backwards; }}
-.moon .star {{ fill: {t['star']}; animation: twinkle 4s ease-in-out infinite; }}
-.moon {{ filter: drop-shadow(0 0 6px {t['glow']}55); }}
-.label {{ fill: {t['dim']}; font-size: 13px; letter-spacing: .14em; }}
-.name {{ fill: {t['ink']}; font-size: 64px; font-weight: 700; letter-spacing: -.02em; }}
-.cursor {{ fill: {t['moon']}; animation: blink 1.1s steps(1) infinite; }}
-.role {{ fill: {t['ink']}; font-size: 17px; }}
-.tag {{ fill: {t['moon']}; font-size: 17px; }}
-.dim {{ fill: {t['dim']}; font-size: 14px; }}
-.rule {{ stroke: {t['faint']}; }}
-@keyframes rise {{ from {{ opacity: 0; transform: translateY(6px); }} }}
-@keyframes twinkle {{ 0%, 100% {{ opacity: .25; }} 50% {{ opacity: 1; }} }}
-@keyframes blink {{ 50% {{ opacity: 0; }} }}"""
-    tx = 420
-    body = f"""{moon_group(44, 18)}
-<text class="label" x="{tx}" y="78">~/MXXNPY</text>
-<text class="name" x="{tx - 4}" y="142">Ayu<tspan class="cursor">_</tspan></text>
-<text class="role" x="{tx}" y="182">Full-stack software engineer · São Paulo, BR</text>
-<line class="rule" x1="{tx}" y1="206" x2="{w - 48}" y2="206"/>
-<text class="tag" x="{tx}" y="238">Software that keeps working after dark.</text>
-<text class="dim" x="{tx}" y="268">Backend, interfaces, data and the infrastructure between them.</text>
-<text class="label" x="{tx}" y="300">AYULE.DEV</text>"""
-    return _svg(w, h, t, style, body, 'Ayu — full-stack software engineer. Crescent moon logo.')
+.name {{ fill: {t['ink']}; font-size: 76px; font-weight: 700; letter-spacing: -.02em; }}
+.role {{ fill: {t['ink']}; font-size: 24px; }}
+.line {{ fill: {t['dim']}; font-size: 20px; }}
+.star {{ animation: twinkle 4s ease-in-out infinite; }}
+@keyframes twinkle {{ 0%, 100% {{ opacity: .3; }} 50% {{ opacity: 1; }} }}"""
+    tx = 330
+    line = wrap(CONTENT['line'], 20, W - tx - PAD)
+    body = f"""{moon_dots(165, 150, 92, t)}
+<text class="name" x="{tx - 4}" y="138">{escape(CONTENT['name'])}</text>
+<text class="role" x="{tx}" y="182">{escape(CONTENT['role'])}</text>
+""" + '\n'.join(f'<text class="line" x="{tx}" y="{222 + i * 30}">{escape(l)}</text>' for i, l in enumerate(line))
+    alt = f"{CONTENT['name']}. {CONTENT['role']}. {CONTENT['line']}"
+    return svg(W, h, t, style, body, alt)
 
 
-def render_logo(theme):
+def render_about(theme):
     t = THEMES[theme]
-    style = f""".moon .row {{ fill: {t['moon']}; }} .moon .star {{ fill: {t['star']}; animation: twinkle 4s ease-in-out infinite; }}
-@keyframes twinkle {{ 0%, 100% {{ opacity: .25; }} 50% {{ opacity: 1; }} }}"""
-    return _svg(360, 310, t, style, moon_group(24, 8, stagger=False), 'mxxn — crescent moon logo', frame=False)
+    size, lh = 21, 34
+    y = 84
+    rows = []
+    for para in CONTENT['about']:
+        for l in wrap(para, size, W - 2 * PAD):
+            rows.append(f'<text class="body" x="{PAD}" y="{y}">{escape(l)}</text>')
+            y += lh
+        y += 18
+    style = f".body {{ fill: {t['ink']}; font-size: {size}px; }}"
+    return svg(W, y + 20, t, style, label('ABOUT', 56) + '\n' + '\n'.join(rows), ' '.join(CONTENT['about']))
 
 
+def render_stack(theme):
+    t = THEMES[theme]
+    col = PAD + 170
+    y, rows = 100, []
+    for i, (area, tools) in enumerate(CONTENT['stack']):
+        if i:
+            rows.append(f'<line class="rule" x1="{PAD}" y1="{y - 32}" x2="{W - PAD}" y2="{y - 32}"/>')
+        rows.append(f'<text class="area" x="{PAD}" y="{y}">{escape(area)}</text>'
+                    f'<text class="tools" x="{col}" y="{y}">{escape(tools)}</text>')
+        y += 52
+    style = f".area {{ fill: {t['dim']}; font-size: 19px; }} .tools {{ fill: {t['ink']}; font-size: 21px; }}"
+    alt = 'Stack. ' + ' '.join(f'{a}: {b}.' for a, b in CONTENT['stack'])
+    return svg(W, y - 4, t, style, label('STACK', 56) + '\n' + '\n'.join(rows), alt)
+
+
+def render_projects(theme):
+    t = THEMES[theme]
+    col = PAD + 300
+    y, rows = 100, []
+    for i, (name, desc) in enumerate(CONTENT['projects']):
+        if i:
+            rows.append(f'<line class="rule" x1="{PAD}" y1="{y - 32}" x2="{W - PAD}" y2="{y - 32}"/>')
+        name_lines = wrap(name, 21, 280)
+        desc_lines = wrap(desc, 19, W - col - PAD)
+        for k, l in enumerate(name_lines):
+            rows.append(f'<text class="pname" x="{PAD}" y="{y + k * 28}">{escape(l)}</text>')
+        for k, l in enumerate(desc_lines):
+            rows.append(f'<text class="pdesc" x="{col}" y="{y + k * 28}">{escape(l)}</text>')
+        y += 52 + 28 * (max(len(name_lines), len(desc_lines)) - 1)
+    style = f".pname {{ fill: {t['ink']}; font-size: 21px; font-weight: 700; }} .pdesc {{ fill: {t['dim']}; font-size: 19px; }}"
+    alt = 'Working on. ' + ' '.join(f'{n}: {d}' for n, d in CONTENT['projects'])
+    return svg(W, y - 4, t, style, label('WORKING ON', 56) + '\n' + '\n'.join(rows), alt)
+
+
+def button_width(text):
+    return 40 + int(len(text) * 20 * CHAR) + 40
+
+
+def render_button(theme, text):
+    t = THEMES[theme]
+    w, h = button_width(text), 56
+    style = f".btn {{ fill: {t['ink']}; font-size: 20px; }} .arrow {{ fill: {t['moon']}; font-size: 20px; }}"
+    body = (f'<text class="btn" x="22" y="35">{escape(text)}</text>'
+            f'<text class="arrow" x="{w - 36}" y="35">↗</text>')
+    return svg(w, h, t, style, body, text)
+
+
+def render_footer(theme):
+    t = THEMES[theme]
+    style = '.star { animation: twinkle 4s ease-in-out infinite; } @keyframes twinkle { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }'
+    return svg(160, 140, t, style, moon_dots(80, 70, 44, t), 'Crescent moon logo', frame=False)
+
+
+# ---------- card de música (fallback do workflow; o ao vivo vem do Worker) ----------
 def _fit(text, limit):
     return text if len(text) <= limit else text[:limit - 1].rstrip() + '…'
 
@@ -128,56 +213,48 @@ def render_now_playing(theme, data):
     """Card de música. data: dict de spotify_tracker.format_current_playing()."""
     t = THEMES[theme]
     recent = (data.get('recent') or [])[:3]
-    w, h = 1000, 120 + (56 + 28 * len(recent) if recent else 0)
+    w, h = W, 150 + (76 + 30 * len(recent) if recent else 0)
     playing = bool(data.get('is_playing'))
     track = data.get('track') or ''
     artist = data.get('artist') or ''
     if not track or track == 'Nothing':
-        label, track, artist = 'OFF AIR', 'Nothing playing right now', 'the moon is quiet tonight'
+        state, track, artist = 'NOTHING PLAYING', 'Nothing playing right now', 'Spotify is quiet'
     else:
-        label = 'NOW PLAYING' if playing else 'LAST PLAYED'
+        state = 'NOW PLAYING' if playing else 'LAST PLAYED'
     anim = 'running' if playing else 'paused'
-    # Parado: barras baixas e iguais, para não parecer que está tocando
-    bar_rest = '' if playing else f".bar {{ animation: none; transform: scaleY(.12); opacity: .45; }}"
+    bar_rest = '' if playing else '.bar { animation: none; transform: scaleY(.12); opacity: .45; }'
     style = f"""
-.label {{ fill: {t['dim']}; font-size: 12px; letter-spacing: .16em; }}
-.track {{ fill: {t['ink']}; font-size: 20px; font-weight: 700; }}
-.artist {{ fill: {t['dim']}; font-size: 15px; }}
-.rule {{ stroke: {t['border']}; }}
-.idx {{ fill: {t['faint']}; font-size: 13px; }}
-.rtrack {{ fill: {t['ink']}; font-size: 15px; }}
-.rartist {{ fill: {t['dim']}; font-size: 15px; }}
+.track {{ fill: {t['ink']}; font-size: 24px; font-weight: 700; }}
+.artist {{ fill: {t['dim']}; font-size: 19px; }}
+.idx {{ fill: {t['dim']}; font-size: 15px; }}
+.rtrack {{ fill: {t['ink']}; font-size: 19px; }}
+.rartist {{ fill: {t['dim']}; font-size: 19px; }}
 .disc {{ fill: none; stroke: {t['moon']}; }}
-.hub {{ fill: {t['moon']}; }}
-.spin {{ transform-origin: 72px 60px; animation: spin 3.2s linear infinite; animation-play-state: {anim}; }}
+.spin {{ transform-origin: {PAD + 34}px 104px; animation: spin 3.2s linear infinite; animation-play-state: {anim}; }}
 .bar {{ fill: {t['moon']}; transform-box: fill-box; transform-origin: bottom; animation: eq 1s ease-in-out infinite; animation-play-state: {anim}; }}
 @keyframes spin {{ to {{ transform: rotate(360deg); }} }}
 @keyframes eq {{ 0%, 100% {{ transform: scaleY(.3); }} 50% {{ transform: scaleY(1); }} }}
 {bar_rest}"""
-    bars = '\n'.join(
-        f'<rect class="bar" x="{w - 150 + i * 14}" y="40" width="8" height="40" rx="2" '
-        f'style="animation-delay:-{(i * 0.37) % 1:.2f}s"/>' for i in range(7))
-    body = f"""<g class="spin">
-<circle class="disc" cx="72" cy="60" r="34" stroke-width="2"/>
-<circle class="disc" cx="72" cy="60" r="24" stroke-width="1" opacity=".5"/>
-<circle class="disc" cx="72" cy="60" r="15" stroke-width="1" opacity=".35"/>
-<path class="hub" d="M72 52 a8 8 0 1 0 0 16 a6 6 0 1 1 0 -16 z"/>
+    cx = PAD + 34
+    bars = '\n'.join(f'<rect class="bar" x="{w - PAD - 92 + i * 14}" y="84" width="8" height="40" rx="2" '
+                     f'style="animation-delay:-{(i * 0.37) % 1:.2f}s"/>' for i in range(7))
+    body = f"""{label(state, 56)}
+<g class="spin">
+<circle class="disc" cx="{cx}" cy="104" r="34" stroke-width="2"/>
+<circle class="disc" cx="{cx}" cy="104" r="22" stroke-width="1" opacity=".5"/>
+<circle class="disc" cx="{cx}" cy="104" r="6" stroke-width="1"/>
 </g>
-<text class="label" x="134" y="40">{label}</text>
-<text class="track" x="134" y="70">{escape(_fit(track, 62))}</text>
-<text class="artist" x="134" y="94">{escape(_fit(artist, 78))}</text>
+<text class="track" x="{PAD + 96}" y="100">{escape(_fit(track, 40))}</text>
+<text class="artist" x="{PAD + 96}" y="128">{escape(_fit(artist, 52))}</text>
 {bars}"""
     if recent:
         rows = '\n'.join(
-            f'<text x="40" y="{184 + i * 28}"><tspan class="idx">{i + 1:02d}</tspan>'
-            f'<tspan class="rtrack" dx="22">{escape(_fit(r.get("track", ""), 48))}</tspan>'
-            f'<tspan class="rartist"> — {escape(_fit(r.get("artist", ""), 40))}</tspan></text>'
+            f'<text x="{PAD}" y="{232 + i * 30}"><tspan class="idx">{i + 1:02d}</tspan>'
+            f'<tspan class="rtrack" dx="20">{escape(_fit(r.get("track", ""), 34))}</tspan>'
+            f'<tspan class="rartist">  {escape(_fit(r.get("artist", ""), 26))}</tspan></text>'
             for i, r in enumerate(recent))
-        body += f"""
-<line class="rule" x1="40" y1="130" x2="{w - 40}" y2="130"/>
-<text class="label" x="40" y="156">RECENTLY PLAYED</text>
-{rows}"""
-    return _svg(w, h, t, style, body, f'{label.title()}: {track} — {artist}')
+        body += f"\n{label('BEFORE THAT', 190)}\n{rows}"
+    return svg(w, h, t, style, body, f'{state.title()}: {track} by {artist}')
 
 
 def write(name, content):
@@ -190,6 +267,42 @@ def write(name, content):
     return old != content
 
 
+NOW_PLAYING_URL = 'https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-{theme}.svg'
+
+
+def _pic(src, alt, width='100%'):
+    """<picture> com a variante escura e a clara; src recebe {theme}."""
+    return (f'<picture>\n  <source media="(prefers-color-scheme: dark)" srcset="{src.format(theme="dark")}">\n'
+            f'  <img alt="{escape(alt, {chr(34): "&quot;"})}" src="{src.format(theme="light")}" width="{width}">\n</picture>')
+
+
+def write_readme():
+    c = CONTENT
+    btns = '\n'.join(
+        f'<a href="{url}">{_pic(f"assets/btn-{text.lower().replace(".", "")}-{{theme}}.svg", text, width=f"{button_width(text) / W * 100:.0f}%")}</a>'
+        for text, url in c['buttons'])
+    md = f"""{_pic('assets/hero-{theme}.svg', f"{c['name']}. {c['role']}. {c['line']}")}
+
+{_pic('assets/about-{theme}.svg', ' '.join(c['about']))}
+
+{_pic('assets/stack-{theme}.svg', 'Stack. ' + ' '.join(f'{a}: {b}.' for a, b in c['stack']))}
+
+{_pic('assets/projects-{theme}.svg', 'Working on. ' + ' '.join(f'{n}: {d}' for n, d in c['projects']))}
+
+{_pic(NOW_PLAYING_URL, 'What I am listening to on Spotify, and the three songs before it.')}
+
+<p>
+{btns}
+</p>
+
+<p align="center">
+{_pic('assets/footer-{theme}.svg', 'Crescent moon logo', width='120')}
+</p>
+"""
+    with open(os.path.join(os.path.dirname(ASSETS), 'README.md'), 'w', encoding='utf-8', newline='\n') as f:
+        f.write(md)
+
+
 def write_now_playing(data):
     changed = False
     for theme in THEMES:
@@ -200,7 +313,11 @@ def write_now_playing(data):
 if __name__ == '__main__':
     for theme in THEMES:
         write(f'hero-{theme}.svg', render_hero(theme))
-        write(f'logo-{theme}.svg', render_logo(theme))
-    if not os.path.exists(os.path.join(ASSETS, 'now-playing-dark.svg')):
-        write_now_playing({'track': 'Nothing'})
+        write(f'about-{theme}.svg', render_about(theme))
+        write(f'stack-{theme}.svg', render_stack(theme))
+        write(f'projects-{theme}.svg', render_projects(theme))
+        write(f'footer-{theme}.svg', render_footer(theme))
+        for text, _ in CONTENT['buttons']:
+            write(f'btn-{text.lower().replace(".", "")}-{theme}.svg', render_button(theme, text))
+    write_readme()
     print('assets ok')

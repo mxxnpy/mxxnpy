@@ -1,69 +1,46 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-  <img alt="Ayu — full-stack software engineer in São Paulo. A crescent moon drawn in ASCII characters." src="assets/hero-light.svg" width="100%">
+  <img alt="Ayu. Full-stack engineer, São Paulo. I build backend systems and the interfaces on top of them." src="assets/hero-light.svg" width="100%">
 </picture>
 
-### 🌒 About
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.svg">
+  <img alt="I work mostly on the backend: APIs, databases, message queues, and the deploy and monitoring setup around them. I also do frontend work, mainly in Angular and React. Almost all of my work lives in private company repos, so what you see here are side projects. I'm moving them to ayule.dev. Outside of work I play drums and guitar." src="assets/about-light.svg" width="100%">
+</picture>
 
-I'm **Ayu**, a full-stack software engineer based in São Paulo. I build whole systems: the API contract, the data model, the interface people actually use, and the pipelines and telemetry that keep it all running.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/stack-dark.svg">
+  <img alt="Stack. Backend: C# / .NET, ASP.NET Core, Node.js, Python. Frontend: TypeScript, Angular, React. Data: PostgreSQL, SQL Server, RabbitMQ, Redis. Infra: Docker, Kubernetes, AWS, GitHub Actions, Grafana." src="assets/stack-light.svg" width="100%">
+</picture>
 
-I care most about software that behaves when nobody is watching: consumers that survive duplicate messages, migrations that don't lock production, and interfaces that still make sense with real data.
-
-Most of what I ship lives in private company repositories, so the graph here shows only a slice of it. My public and personal work is moving to **[ayule.dev](https://ayule.dev)**.
-
-### 🌓 What I work with
-
-| Area | Tools |
-| --- | --- |
-| **Backend** | C# / .NET, ASP.NET Core, Node.js (NestJS), Python |
-| **Frontend** | TypeScript, Angular, React |
-| **Data & messaging** | PostgreSQL, SQL Server, RabbitMQ, Redis |
-| **Infrastructure** | Docker, Kubernetes, AWS, GitHub Actions, OpenTelemetry, Grafana |
-| **AI** | LLM agents with tool use, RAG, evaluation |
-
-### 🌔 In orbit
-
-Projects I'm building now or bringing back:
-
-- **[Patinhas](https://github.com/mxxnpy/adopt-a-cat)** — adoption platform for animal-rescue NGOs. Picking it back up.
-- **AyuLab** — my engineering lab: agent playbooks, reusable skills and a task board, versioned like code.
-- **[Ayu Source](https://ayule.dev)** — my portfolio and the future home of my public projects.
-- **Tide** — multi-agent coding IDE: several agents working in parallel on one plan, with a live view of every step.
-- **Lumen** — research agent that turns a question into a sourced report.
-- **Marionette** — platform for writing scripts and planning campaigns.
-- **AyuBounty** — in design.
-
-<!-- Selected work: oculto por enquanto. Para mostrar de novo, remova este comentário e o que fecha a tabela.
-### Selected work
-
-| Project | What it is | Built with |
-| --- | --- | --- |
-| [**AyuFlow**](https://github.com/mxxnpy/AyuFlow) | Local-first low-code platform: boards, durable workflows, a capability catalog and AI agents | .NET 10 · Angular 20 · PostgreSQL + pgvector · RabbitMQ · OpenTelemetry |
-| [**MoonOps**](https://github.com/mxxnpy/MoonOps) | ASP.NET Core API on DDD layers, with versioned endpoints and OpenAPI docs | .NET · DDD · Scalar |
-| [**ayuMusic**](https://github.com/mxxnpy/ayuMusic) | Discord music bot: YouTube and Spotify playback, per-server queues and lyrics | Python · yt-dlp · FFmpeg |
-| [**omni_technical_challenge**](https://github.com/mxxnpy/omni_technical_challenge) | REST API for money transfers between users | NestJS · PostgreSQL · Docker |
-| [**adopt-a-cat**](https://github.com/mxxnpy/adopt-a-cat) | Patinhas API, the backend for a cat adoption NGO | ASP.NET Core · EF Core |
-| [**ayuCam**](https://github.com/mxxnpy/ayuCam) | Browser camera with real-time filters and saved presets | Angular · TypeScript |
--->
-
-### 🌕 Now playing
-
-When I'm not writing code I'm usually behind a drum kit or a guitar. This card follows my Spotify:
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/projects-dark.svg">
+  <img alt="Working on. Patinhas: Adoption platform for animal shelters. Restarting it. AyuLab: My dev environment: tooling, templates and a task board. Ayu Source: Portfolio, at ayule.dev. Lumen: Research tool that pulls sources together into a written report. Multi-agent coding IDE: An editor where several agents work on one task at the same time. Doll Maker: Write scripts and plan campaigns in one place. AyuBounty: Early design." src="assets/projects-light.svg" width="100%">
+</picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-dark.svg">
-  <img alt="What I'm listening to on Spotify right now, updated automatically." src="https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-light.svg" width="100%">
+  <img alt="What I am listening to on Spotify, and the three songs before it." src="https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-light.svg" width="100%">
 </picture>
 
-### 🌖 Get in touch
-
-[`[ ayule.dev ]`](https://ayule.dev) &nbsp; [`[ linkedin ]`](https://www.linkedin.com/in/mxxnlea/) &nbsp; [`[ email ]`](mailto:ayu.leandro@ayule.dev)
-
-<br>
+<p>
+<a href="https://ayule.dev"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/btn-ayuledev-dark.svg">
+  <img alt="ayule.dev" src="assets/btn-ayuledev-light.svg" width="21%">
+</picture></a>
+<a href="https://www.linkedin.com/in/mxxnlea/"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/btn-linkedin-dark.svg">
+  <img alt="LinkedIn" src="assets/btn-linkedin-light.svg" width="20%">
+</picture></a>
+<a href="mailto:ayu.leandro@ayule.dev"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/btn-email-dark.svg">
+  <img alt="Email" src="assets/btn-email-light.svg" width="16%">
+</picture></a>
+</p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
-    <img alt="mxxn crescent moon logo" src="assets/logo-light.svg" width="120">
-  </picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/footer-dark.svg">
+  <img alt="Crescent moon logo" src="assets/footer-light.svg" width="120">
+</picture>
 </p>
