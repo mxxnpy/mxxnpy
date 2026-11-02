@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
 Autoriza o card "Now playing" a ler o seu Spotify e grava as credenciais
-como Secrets do repositório no GitHub. Rode uma vez (ou quando trocar o secret):
+como secrets do Worker (worker/). Rode uma vez, ou quando trocar o secret:
 
-    python spotify_auth.py                # grava no GitHub
-    python spotify_auth.py --cloudflare   # grava no GitHub e no Worker (worker/)
+    python spotify_auth.py
 
-Requisitos: gh logado (gh auth status) e um app em developer.spotify.com/dashboard
-com o Redirect URI http://127.0.0.1:8888/callback cadastrado. Para --cloudflare,
-`npx wrangler login` feito antes, na conta certa (confira com `npx wrangler whoami`).
+Requisitos: um app em developer.spotify.com/dashboard com o Redirect URI
+http://127.0.0.1:8888/callback cadastrado, e `npx wrangler login` feito antes
+na conta certa (confira com `npx wrangler whoami`).
 Nenhum token é impresso nem salvo em arquivo.
 """
 import base64
@@ -20,12 +19,10 @@ import re
 import secrets
 import shutil
 import subprocess
-import sys
 import urllib.parse
 import urllib.request
 import webbrowser
 
-REPO = 'mxxnpy/mxxnpy'
 WORKER_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'worker')
 REDIRECT_URI = 'http://127.0.0.1:8888/callback'
 SCOPES = 'user-read-currently-playing user-read-recently-played'
@@ -95,13 +92,6 @@ def ask_credentials():
     return client_id, client_secret
 
 
-def set_secret(name, value):
-    # Valor vai pelo stdin, nunca pela linha de comando
-    subprocess.run(['gh', 'secret', 'set', name, '-R', REPO], input=value.encode(), check=True,
-                   stdout=subprocess.DEVNULL)
-    print(f'  ✓ {name}')
-
-
 def main():
     client_id, client_secret = ask_credentials()
     state = secrets.token_urlsafe(16)
@@ -115,20 +105,14 @@ def main():
 
     values = {'SPOTIFY_CLIENT_ID': client_id, 'SPOTIFY_CLIENT_SECRET': client_secret,
               'SPOTIFY_REFRESH_TOKEN': refresh_token}
-    print(f'Gravando secrets em {REPO}:')
+    npx = shutil.which('npx') or 'npx'
+    print('Gravando secrets no Worker (Cloudflare):')
     for name, value in values.items():
-        set_secret(name, value)
-
-    if '--cloudflare' in sys.argv:
-        npx = shutil.which('npx') or 'npx'
-        print('Gravando secrets no Worker (Cloudflare):')
-        for name, value in values.items():
-            subprocess.run([npx, 'wrangler', 'secret', 'put', name], input=value.encode(), cwd=WORKER_DIR,
-                           check=True, stdout=subprocess.DEVNULL)
-            print(f'  ✓ {name}')
-
-    subprocess.run(['gh', 'workflow', 'run', 'spotify-update.yaml', '-R', REPO], check=False)
-    print('\nFeito. O card atualiza em ~1 minuto e depois a cada execução agendada do GitHub.')
+        # Valor vai pelo stdin, nunca pela linha de comando
+        subprocess.run([npx, 'wrangler', 'secret', 'put', name], input=value.encode(), cwd=WORKER_DIR,
+                       check=True, stdout=subprocess.DEVNULL)
+        print(f'  ✓ {name}')
+    print('\nFeito. O card já mostra a música na próxima visita ao perfil.')
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ Painéis SVG do perfil (light/dark). O texto de cada painel fica em CONTENT.
 
     python brand.py            # regenera assets/
 
-O card de música é servido ao vivo pelo Worker em worker/ (mesmo visual).
+O card de música é gerado ao vivo pelo Worker em worker/ (mesmo visual).
 """
 import math
 import os
@@ -204,59 +204,6 @@ def render_footer(theme):
     return svg(160, 140, t, style, moon_dots(80, 70, 44, t), 'Crescent moon logo', frame=False)
 
 
-# ---------- card de música (fallback do workflow; o ao vivo vem do Worker) ----------
-def _fit(text, limit):
-    return text if len(text) <= limit else text[:limit - 1].rstrip() + '…'
-
-
-def render_now_playing(theme, data):
-    """Card de música. data: dict de spotify_tracker.format_current_playing()."""
-    t = THEMES[theme]
-    recent = (data.get('recent') or [])[:3]
-    w, h = W, 150 + (76 + 30 * len(recent) if recent else 0)
-    playing = bool(data.get('is_playing'))
-    track = data.get('track') or ''
-    artist = data.get('artist') or ''
-    if not track or track == 'Nothing':
-        state, track, artist = 'NOTHING PLAYING', 'Nothing playing right now', 'Spotify is quiet'
-    else:
-        state = 'NOW PLAYING' if playing else 'LAST PLAYED'
-    anim = 'running' if playing else 'paused'
-    bar_rest = '' if playing else '.bar { animation: none; transform: scaleY(.12); opacity: .45; }'
-    style = f"""
-.track {{ fill: {t['ink']}; font-size: 24px; font-weight: 700; }}
-.artist {{ fill: {t['dim']}; font-size: 19px; }}
-.idx {{ fill: {t['dim']}; font-size: 15px; }}
-.rtrack {{ fill: {t['ink']}; font-size: 19px; }}
-.rartist {{ fill: {t['dim']}; font-size: 19px; }}
-.disc {{ fill: none; stroke: {t['moon']}; }}
-.spin {{ transform-origin: {PAD + 34}px 104px; animation: spin 3.2s linear infinite; animation-play-state: {anim}; }}
-.bar {{ fill: {t['moon']}; transform-box: fill-box; transform-origin: bottom; animation: eq 1s ease-in-out infinite; animation-play-state: {anim}; }}
-@keyframes spin {{ to {{ transform: rotate(360deg); }} }}
-@keyframes eq {{ 0%, 100% {{ transform: scaleY(.3); }} 50% {{ transform: scaleY(1); }} }}
-{bar_rest}"""
-    cx = PAD + 34
-    bars = '\n'.join(f'<rect class="bar" x="{w - PAD - 92 + i * 14}" y="84" width="8" height="40" rx="2" '
-                     f'style="animation-delay:-{(i * 0.37) % 1:.2f}s"/>' for i in range(7))
-    body = f"""{label(state, 56)}
-<g class="spin">
-<circle class="disc" cx="{cx}" cy="104" r="34" stroke-width="2"/>
-<circle class="disc" cx="{cx}" cy="104" r="22" stroke-width="1" opacity=".5"/>
-<circle class="disc" cx="{cx}" cy="104" r="6" stroke-width="1"/>
-</g>
-<text class="track" x="{PAD + 96}" y="100">{escape(_fit(track, 40))}</text>
-<text class="artist" x="{PAD + 96}" y="128">{escape(_fit(artist, 52))}</text>
-{bars}"""
-    if recent:
-        rows = '\n'.join(
-            f'<text x="{PAD}" y="{232 + i * 30}"><tspan class="idx">{i + 1:02d}</tspan>'
-            f'<tspan class="rtrack" dx="20">{escape(_fit(r.get("track", ""), 34))}</tspan>'
-            f'<tspan class="rartist">  {escape(_fit(r.get("artist", ""), 26))}</tspan></text>'
-            for i, r in enumerate(recent))
-        body += f"\n{label('BEFORE THAT', 190)}\n{rows}"
-    return svg(w, h, t, style, body, f'{state.title()}: {track} by {artist}')
-
-
 def write(name, content):
     os.makedirs(ASSETS, exist_ok=True)
     path = os.path.join(ASSETS, name)
@@ -267,7 +214,8 @@ def write(name, content):
     return old != content
 
 
-NOW_PLAYING_URL = 'https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-{theme}.svg'
+# Card ao vivo servido pelo Worker (worker/), mesmo visual dos painéis
+NOW_PLAYING_URL = 'https://ayu-now-playing.ayule.workers.dev/?theme={theme}'
 
 
 def _pic(src, alt, width='100%'):
@@ -301,13 +249,6 @@ def write_readme():
 """
     with open(os.path.join(os.path.dirname(ASSETS), 'README.md'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(md)
-
-
-def write_now_playing(data):
-    changed = False
-    for theme in THEMES:
-        changed |= write(f'now-playing-{theme}.svg', render_now_playing(theme, data))
-    return changed
 
 
 if __name__ == '__main__':

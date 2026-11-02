@@ -1,7 +1,7 @@
 // Card "Now playing" gerado na hora a partir da API do Spotify.
 // GET /?theme=dark|light  ->  image/svg+xml
 // Secrets (wrangler secret put): SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN
-// Mesmo visual de render_now_playing() em ../brand.py.
+// Cores e medidas iguais às de THEMES/W/PAD em ../brand.py, que gera os outros painéis.
 
 const W = 900;
 const PAD = 48;

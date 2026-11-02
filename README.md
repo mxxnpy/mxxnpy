@@ -19,8 +19,8 @@
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-dark.svg">
-  <img alt="What I am listening to on Spotify, and the three songs before it." src="https://raw.githubusercontent.com/mxxnpy/mxxnpy/output/now-playing-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://ayu-now-playing.ayule.workers.dev/?theme=dark">
+  <img alt="What I am listening to on Spotify, and the three songs before it." src="https://ayu-now-playing.ayule.workers.dev/?theme=light" width="100%">
 </picture>
 
 <p>
