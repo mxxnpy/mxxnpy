@@ -127,7 +127,8 @@ def _fit(text, limit):
 def render_now_playing(theme, data):
     """Card de música. data: dict de spotify_tracker.format_current_playing()."""
     t = THEMES[theme]
-    w, h = 1000, 120
+    recent = (data.get('recent') or [])[:3]
+    w, h = 1000, 120 + (56 + 28 * len(recent) if recent else 0)
     playing = bool(data.get('is_playing'))
     track = data.get('track') or ''
     artist = data.get('artist') or ''
@@ -142,6 +143,10 @@ def render_now_playing(theme, data):
 .label {{ fill: {t['dim']}; font-size: 12px; letter-spacing: .16em; }}
 .track {{ fill: {t['ink']}; font-size: 20px; font-weight: 700; }}
 .artist {{ fill: {t['dim']}; font-size: 15px; }}
+.rule {{ stroke: {t['border']}; }}
+.idx {{ fill: {t['faint']}; font-size: 13px; }}
+.rtrack {{ fill: {t['ink']}; font-size: 15px; }}
+.rartist {{ fill: {t['dim']}; font-size: 15px; }}
 .disc {{ fill: none; stroke: {t['moon']}; }}
 .hub {{ fill: {t['moon']}; }}
 .spin {{ transform-origin: 72px 60px; animation: spin 3.2s linear infinite; animation-play-state: {anim}; }}
@@ -162,6 +167,16 @@ def render_now_playing(theme, data):
 <text class="track" x="134" y="70">{escape(_fit(track, 62))}</text>
 <text class="artist" x="134" y="94">{escape(_fit(artist, 78))}</text>
 {bars}"""
+    if recent:
+        rows = '\n'.join(
+            f'<text x="40" y="{184 + i * 28}"><tspan class="idx">{i + 1:02d}</tspan>'
+            f'<tspan class="rtrack" dx="22">{escape(_fit(r.get("track", ""), 48))}</tspan>'
+            f'<tspan class="rartist"> — {escape(_fit(r.get("artist", ""), 40))}</tspan></text>'
+            for i, r in enumerate(recent))
+        body += f"""
+<line class="rule" x1="40" y1="130" x2="{w - 40}" y2="130"/>
+<text class="label" x="40" y="156">RECENTLY PLAYED</text>
+{rows}"""
     return _svg(w, h, t, style, body, f'{label.title()}: {track} — {artist}')
 
 

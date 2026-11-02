@@ -88,7 +88,7 @@ def main():
     set_secret('SPOTIFY_REFRESH_TOKEN', refresh_token)
 
     subprocess.run(['gh', 'workflow', 'run', 'spotify-update.yaml', '-R', REPO], check=False)
-    print('\nFeito. O card atualiza em ~1 minuto e depois a cada 15.')
+    print('\nFeito. O card atualiza em ~1 minuto e depois a cada execução agendada do GitHub.')
 
 
 if __name__ == '__main__':

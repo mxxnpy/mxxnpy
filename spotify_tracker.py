@@ -48,9 +48,13 @@ def _track_info(track):
 
 def format_current_playing():
     """
-    Formata a música atual para exibição; sem nada tocando, devolve a última tocada
+    Formata a música atual (ou a última tocada) e as 3 anteriores a ela
     """
     headers = {'Authorization': f'Bearer {get_access_token()}'}
+
+    recent = requests.get(f'{API}/me/player/recently-played', headers=headers, params={'limit': 6}, timeout=15)
+    recent.raise_for_status()
+    history = [_track_info(item['track']) for item in recent.json().get('items') or []]
 
     current = requests.get(f'{API}/me/player/currently-playing', headers=headers, timeout=15)
     current.raise_for_status()
@@ -58,14 +62,25 @@ def format_current_playing():
     if current.status_code == 200 and current.content:
         data = current.json()
         if data.get('is_playing') and data.get('currently_playing_type') == 'track' and data.get('item'):
-            return {'is_playing': True, **_track_info(data['item'])}
+            now = {'is_playing': True, **_track_info(data['item'])}
+            return {**now, 'recent': _previous(history, now)}
 
-    recent = requests.get(f'{API}/me/player/recently-played', headers=headers, params={'limit': 1}, timeout=15)
-    recent.raise_for_status()
-    items = recent.json().get('items') or []
-    if items:
-        return {'is_playing': False, **_track_info(items[0]['track'])}
+    if history:
+        return {'is_playing': False, **history[0], 'recent': _previous(history[1:], history[0])}
     return {'track': 'Nothing'}
+
+
+def _previous(history, shown, count=3):
+    """Últimas músicas sem repetir a que está no destaque nem duplicatas seguidas"""
+    out = []
+    for item in history:
+        key = (item['track'], item['artist'])
+        if key == (shown['track'], shown['artist']) or (out and key == (out[-1]['track'], out[-1]['artist'])):
+            continue
+        out.append(item)
+        if len(out) == count:
+            break
+    return out
 
 
 if __name__ == '__main__':

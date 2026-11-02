@@ -1,7 +1,7 @@
 name: Spotify Update
 on:
   schedule:
-    - cron: "*/15 * * * *"  # A cada 15 minutos
+    - cron: "*/5 * * * *"  # Mínimo do GitHub; na prática ele atrasa bastante
   workflow_dispatch:  # Permite execução manual
   push:
     paths:
