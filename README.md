@@ -15,7 +15,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/projects-dark.svg">
-  <img alt="Working on. Patinhas: Adoption platform for animal shelters. Restarting it. AyuLab: My dev environment: tooling, templates and a task board. Ayu Source: Portfolio, at ayule.dev. Lumen: Research tool that pulls sources together into a written report. Multi-agent coding IDE: An editor where several agents work on one task at the same time. Doll Maker: Write scripts and plan campaigns in one place. AyuBounty: Early design." src="assets/projects-light.svg" width="100%">
+  <img alt="Working on. Conclave: One workspace for coding with several AI agents and for several clients at once. Marquee: Every show in your city from every ticket site, with a heads-up when your bands come. Adopt-A-Cat: Cat adoption, and the care that comes after it. Lumen: Research reports where every claim stays tied to its source. Doll Maker: Scripts and campaigns, built at AyuLab. Powered by Pulso." src="assets/projects-light.svg" width="100%">
 </picture>
 
 <picture>

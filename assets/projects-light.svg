@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="900" height="614" viewBox="0 0 900 614" role="img" aria-label="Working on. Patinhas: Adoption platform for animal shelters. Restarting it. AyuLab: My dev environment: tooling, templates and a task board. Ayu Source: Portfolio, at ayule.dev. Lumen: Research tool that pulls sources together into a written report. Multi-agent coding IDE: An editor where several agents work on one task at the same time. Doll Maker: Write scripts and plan campaigns in one place. AyuBounty: Early design." font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
-<title>Working on. Patinhas: Adoption platform for animal shelters. Restarting it. AyuLab: My dev environment: tooling, templates and a task board. Ayu Source: Portfolio, at ayule.dev. Lumen: Research tool that pulls sources together into a written report. Multi-agent coding IDE: An editor where several agents work on one task at the same time. Doll Maker: Write scripts and plan campaigns in one place. AyuBounty: Early design.</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="510" viewBox="0 0 900 510" role="img" aria-label="Working on. Conclave: One workspace for coding with several AI agents and for several clients at once. Marquee: Every show in your city from every ticket site, with a heads-up when your bands come. Adopt-A-Cat: Cat adoption, and the care that comes after it. Lumen: Research reports where every claim stays tied to its source. Doll Maker: Scripts and campaigns, built at AyuLab. Powered by Pulso." font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>Working on. Conclave: One workspace for coding with several AI agents and for several clients at once. Marquee: Every show in your city from every ticket site, with a heads-up when your bands come. Adopt-A-Cat: Cat adoption, and the care that comes after it. Lumen: Research reports where every claim stays tied to its source. Doll Maker: Scripts and campaigns, built at AyuLab. Powered by Pulso.</title>
 <style>
 text { white-space: pre; }
 .label { fill: #5f6477; font-size: 15px; letter-spacing: .18em; }
@@ -7,32 +7,26 @@ text { white-space: pre; }
 .pname { fill: #1c1e2a; font-size: 21px; font-weight: 700; } .pdesc { fill: #5f6477; font-size: 19px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 </style>
-<rect x="0.5" y="0.5" width="899" height="599" rx="16" fill="#f7f5ef" stroke="#e2ddcf"/>
+<rect x="0.5" y="0.5" width="899" height="495" rx="16" fill="#f7f5ef" stroke="#e2ddcf"/>
 <text class="label" x="48" y="56">WORKING ON</text>
 <line class="rule" x1="181" y1="51" x2="852" y2="51"/>
-<text class="pname" x="48" y="100">Patinhas</text>
-<text class="pdesc" x="348" y="100">Adoption platform for animal shelters.</text>
-<text class="pdesc" x="348" y="128">Restarting it.</text>
+<text class="pname" x="48" y="100">Conclave</text>
+<text class="pdesc" x="348" y="100">One workspace for coding with several AI</text>
+<text class="pdesc" x="348" y="128">agents and for several clients at once.</text>
 <line class="rule" x1="48" y1="148" x2="852" y2="148"/>
-<text class="pname" x="48" y="180">AyuLab</text>
-<text class="pdesc" x="348" y="180">My dev environment: tooling, templates and a</text>
-<text class="pdesc" x="348" y="208">task board.</text>
+<text class="pname" x="48" y="180">Marquee</text>
+<text class="pdesc" x="348" y="180">Every show in your city from every ticket</text>
+<text class="pdesc" x="348" y="208">site, with a heads-up when your bands come.</text>
 <line class="rule" x1="48" y1="228" x2="852" y2="228"/>
-<text class="pname" x="48" y="260">Ayu Source</text>
-<text class="pdesc" x="348" y="260">Portfolio, at ayule.dev.</text>
-<line class="rule" x1="48" y1="280" x2="852" y2="280"/>
-<text class="pname" x="48" y="312">Lumen</text>
-<text class="pdesc" x="348" y="312">Research tool that pulls sources together</text>
-<text class="pdesc" x="348" y="340">into a written report.</text>
-<line class="rule" x1="48" y1="360" x2="852" y2="360"/>
-<text class="pname" x="48" y="392">Multi-agent coding IDE</text>
-<text class="pdesc" x="348" y="392">An editor where several agents work on one</text>
-<text class="pdesc" x="348" y="420">task at the same time.</text>
-<line class="rule" x1="48" y1="440" x2="852" y2="440"/>
-<text class="pname" x="48" y="472">Doll Maker</text>
-<text class="pdesc" x="348" y="472">Write scripts and plan campaigns in one</text>
-<text class="pdesc" x="348" y="500">place.</text>
-<line class="rule" x1="48" y1="520" x2="852" y2="520"/>
-<text class="pname" x="48" y="552">AyuBounty</text>
-<text class="pdesc" x="348" y="552">Early design.</text>
+<text class="pname" x="48" y="260">Adopt-A-Cat</text>
+<text class="pdesc" x="348" y="260">Cat adoption, and the care that comes after</text>
+<text class="pdesc" x="348" y="288">it.</text>
+<line class="rule" x1="48" y1="308" x2="852" y2="308"/>
+<text class="pname" x="48" y="340">Lumen</text>
+<text class="pdesc" x="348" y="340">Research reports where every claim stays</text>
+<text class="pdesc" x="348" y="368">tied to its source.</text>
+<line class="rule" x1="48" y1="388" x2="852" y2="388"/>
+<text class="pname" x="48" y="420">Doll Maker</text>
+<text class="pdesc" x="348" y="420">Scripts and campaigns, built at AyuLab.</text>
+<text class="pdesc" x="348" y="448">Powered by Pulso.</text>
 </svg>
