@@ -5,7 +5,7 @@ Atualiza o card "Now playing" (assets/now-playing-*.svg) com a música do Spotif
 
 import time
 from brand import write_now_playing
-from spotify_tracker import format_current_playing
+from spotify_tracker import format_current_playing, MissingCredentials
 
 
 def main():
@@ -14,6 +14,9 @@ def main():
 
     try:
         spotify_data = format_current_playing() or {'track': 'Nothing'}
+    except MissingCredentials as e:
+        print(f"⚠️ Spotify secrets not configured ({e}); run spotify_auth.py. Card shows off air.")
+        spotify_data = {'track': 'Nothing'}
     except Exception as e:
         # Sem a API, mantém o último card publicado em vez de mostrar erro no perfil
         print(f"❌ Spotify unavailable, keeping current card: {e}")
