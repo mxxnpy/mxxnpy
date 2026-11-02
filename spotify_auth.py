@@ -16,6 +16,7 @@ import getpass
 import http.server
 import json
 import os
+import re
 import secrets
 import shutil
 import subprocess
@@ -65,8 +66,33 @@ def exchange(code, client_id, client_secret):
     request = urllib.request.Request('https://accounts.spotify.com/api/token', data=data)
     basic = base64.b64encode(f'{client_id}:{client_secret}'.encode()).decode()
     request.add_header('Authorization', f'Basic {basic}')
-    with urllib.request.urlopen(request, timeout=15) as response:
-        return json.load(response)['refresh_token']
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            return json.load(response)['refresh_token']
+    except urllib.error.HTTPError as e:
+        # O corpo do erro do Spotify não contém credenciais, só o motivo
+        try:
+            body = json.load(e)
+        except ValueError:
+            body = {}
+        reason = body.get('error_description') or body.get('error') or e.reason
+        hint = {
+            'invalid_client': 'Client ID ou Client Secret incorretos. Copie de novo do dashboard do Spotify.',
+            'invalid_grant': 'Código expirado ou Redirect URI diferente do cadastrado no app do Spotify.',
+        }.get(body.get('error'), '')
+        raise SystemExit(f'Spotify recusou a troca do código: {reason}. {hint}')
+
+
+def ask_credentials():
+    client_id = input('Spotify Client ID: ').strip()
+    client_secret = getpass.getpass('Spotify Client Secret (não aparece ao digitar): ').strip()
+    # IDs e secrets do Spotify têm 32 caracteres hexadecimais; colar com Ctrl+V no
+    # PowerShell às vezes insere caracteres de controle invisíveis no lugar do texto
+    for name, value in (('Client ID', client_id), ('Client Secret', client_secret)):
+        if not re.fullmatch(r'[0-9a-f]{32}', value):
+            raise SystemExit(f'{name} inválido ({len(value)} caracteres, esperado 32 hexadecimais). '
+                             'Cole com o botão direito do mouse em vez de Ctrl+V e tente de novo.')
+    return client_id, client_secret
 
 
 def set_secret(name, value):
@@ -77,8 +103,7 @@ def set_secret(name, value):
 
 
 def main():
-    client_id = input('Spotify Client ID: ').strip()
-    client_secret = getpass.getpass('Spotify Client Secret (não aparece ao digitar): ').strip()
+    client_id, client_secret = ask_credentials()
     state = secrets.token_urlsafe(16)
     url = 'https://accounts.spotify.com/authorize?' + urllib.parse.urlencode({
         'client_id': client_id, 'response_type': 'code', 'redirect_uri': REDIRECT_URI,
