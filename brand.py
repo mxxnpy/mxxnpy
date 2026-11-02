@@ -5,7 +5,6 @@ Painéis SVG do perfil (light/dark). O texto de cada painel fica em CONTENT.
 
 O card de música é gerado ao vivo pelo Worker em worker/ (mesmo visual).
 """
-import math
 import os
 from xml.sax.saxutils import escape
 
@@ -42,7 +41,7 @@ CONTENT = {
     'projects': [
         ('Lunette', 'One workspace for coding with several AI agents and for several clients at once.'),
         ('Handbill', 'Every show in your city from every ticket site, with a heads-up when your bands come.'),
-        ('Adopt-A-Cat', 'Cat adoption, and the care that comes after it.'),
+        ('Tabby', 'Cat adoption, and the care that comes after it.'),
         ('Lumen', 'Research reports where every claim stays tied to its source.'),
         ('Doll Maker', 'Scripts and campaigns, built at AyuLab. Powered by Pulso.'),
     ],
@@ -93,26 +92,23 @@ def label(text, y, w=W):
             f'<line class="rule" x1="{PAD + len(text) * 15 * (CHAR + .18) + 16:.0f}" y1="{y - 5}" x2="{w - PAD}" y2="{y - 5}"/>')
 
 
-# ---------- lua (provisória: retícula de pontos, até a logo nova) ----------
-def moon_dots(cx, cy, r, t):
-    bx, by, br = cx + 0.42 * r, cy - 0.16 * r, 0.88 * r
-    step = r / 10
-    out = []
-    n = int(r / step) + 1
-    for j in range(-n, n + 1):
-        for i in range(-n, n + 1):
-            x = cx + i * step + (step / 2 if j % 2 else 0)
-            y = cy + j * step * 0.87
-            if math.hypot(x - cx, y - cy) > r - step * 0.3:
-                continue
-            db = math.hypot(x - bx, y - by)
-            if db > br + step * 0.25:
-                v = min(1.0, (db - br) / (0.45 * r))
-                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{step * 0.46 * (0.4 + 0.6 * v):.2f}" fill="{t["moon"]}"/>')
-    for k, (dx, dy, s) in enumerate([(1.15, -0.85, 2.2), (1.45, 0.25, 1.6), (0.75, 1.15, 1.4), (-1.2, -1.0, 1.4)]):
-        out.append(f'<circle class="star" cx="{cx + dx * r:.1f}" cy="{cy + dy * r:.1f}" r="{s}" fill="{t["star"]}" '
-                   f'style="animation-delay:{k * 0.9:.1f}s"/>')
-    return '\n'.join(out)
+# ---------- lua: a logo da Ayu (brand/ayu-moon-clear.svg, desenho 400×400) ----------
+MARK_FILE = os.path.join(os.path.dirname(ASSETS), 'brand', 'ayu-moon-clear.svg')
+MARK_FILL = {'dark': '#F7F2E6', 'light': '#1C1E2A'}
+# As estrelas piscam em tempos diferentes; some com prefers-reduced-motion
+TWINKLE = ('#stars .star { animation: twinkle 5s ease-in-out infinite; } '
+           + ' '.join(f'#star-{i} {{ animation-delay: {d}s; }}' for i, d in enumerate([0, 1.7, 0.8, 3.1, 2.3, 4], 1))
+           + ' @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }')
+
+
+def moon_mark(cx, cy, size, theme):
+    """A logo da Ayu centrada em (cx, cy), com 'size' px de lado, na cor do tema."""
+    src = open(MARK_FILE, encoding='utf-8').read()
+    start = src.index('<g id="mark"')
+    inner = src[src.index('>', start) + 1:src.rindex('</g>')]
+    k = size / 400
+    return (f'<g id="mark" fill="{MARK_FILL[theme]}" '
+            f'transform="translate({cx - size / 2:.1f} {cy - size / 2:.1f}) scale({k:.4f})">{inner}</g>')
 
 
 # ---------- painéis ----------
@@ -123,11 +119,10 @@ def render_hero(theme):
 .name {{ fill: {t['ink']}; font-size: 76px; font-weight: 700; letter-spacing: -.02em; }}
 .role {{ fill: {t['ink']}; font-size: 24px; }}
 .line {{ fill: {t['dim']}; font-size: 20px; }}
-.star {{ animation: twinkle 4s ease-in-out infinite; }}
-@keyframes twinkle {{ 0%, 100% {{ opacity: .3; }} 50% {{ opacity: 1; }} }}"""
+{TWINKLE}"""
     tx = 330
     line = wrap(CONTENT['line'], 20, W - tx - PAD)
-    body = f"""{moon_dots(165, 150, 92, t)}
+    body = f"""{moon_mark(160, 150, 260, theme)}
 <text class="name" x="{tx - 4}" y="138">{escape(CONTENT['name'])}</text>
 <text class="role" x="{tx}" y="182">{escape(CONTENT['role'])}</text>
 """ + '\n'.join(f'<text class="line" x="{tx}" y="{222 + i * 30}">{escape(l)}</text>' for i, l in enumerate(line))
@@ -198,8 +193,7 @@ def render_button(theme, text):
 
 def render_footer(theme):
     t = THEMES[theme]
-    style = '.star { animation: twinkle 4s ease-in-out infinite; } @keyframes twinkle { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }'
-    return svg(160, 140, t, style, moon_dots(80, 70, 44, t), 'Crescent moon logo', frame=False)
+    return svg(160, 160, t, TWINKLE, moon_mark(80, 80, 150, theme), 'Ayu crescent moon logo', frame=False)
 
 
 def write(name, content):
