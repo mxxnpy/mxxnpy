@@ -40,8 +40,8 @@ CONTENT = {
         ('Infra', 'Docker, Kubernetes, AWS, GitHub Actions, Grafana'),
     ],
     'projects': [
-        ('Conclave', 'One workspace for coding with several AI agents and for several clients at once.'),
-        ('Marquee', 'Every show in your city from every ticket site, with a heads-up when your bands come.'),
+        ('Lunette', 'One workspace for coding with several AI agents and for several clients at once.'),
+        ('Handbill', 'Every show in your city from every ticket site, with a heads-up when your bands come.'),
         ('Adopt-A-Cat', 'Cat adoption, and the care that comes after it.'),
         ('Lumen', 'Research reports where every claim stays tied to its source.'),
         ('Doll Maker', 'Scripts and campaigns, built at AyuLab. Powered by Pulso.'),
