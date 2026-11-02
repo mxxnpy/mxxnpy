@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+# gerado pelo workflow e publicado no branch output
+assets/now-playing-*.svg

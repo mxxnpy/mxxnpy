@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="310" viewBox="0 0 360 310" role="img" aria-label="mxxn — crescent moon logo" font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>mxxn — crescent moon logo</title>
+<style>
+text { white-space: pre; }
+.moon .row { fill: #f1d79a; } .moon .star { fill: #9aa3c7; animation: twinkle 4s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<g class="moon" font-size="13">
+<text class="row" x="24" y="34">             ==--::.. . . .</text>
+<text class="row" x="24" y="47">          +++==-::.         .</text>
+<text class="row" x="24" y="60">        ***++=-::.            .</text>
+<text class="row" x="24" y="73">      **#**+=-::.               .</text>
+<text class="row" x="24" y="86">     *###*+==-:.                  .</text>
+<text class="row" x="24" y="99">    *#%%#*+=-:.                   .</text>
+<text class="row" x="24" y="112">    #%%++=-=-:.</text>
+<text class="row" x="24" y="125">   #%@%++=-=-:.                     .</text>
+<text class="row" x="24" y="138">   #%@%#**+=-:.                     .</text>
+<text class="row" x="24" y="151">   #%@%##*+=-:.                     .</text>
+<text class="row" x="24" y="164">   #%@@%#*+=-:.                     .</text>
+<text class="row" x="24" y="177">   #%@@%#*+=--:.                    .</text>
+<text class="row" x="24" y="190">   #%@@%%#*+=-:..                   .</text>
+<text class="row" x="24" y="203">    #%@@%#*++=-:..</text>
+<text class="row" x="24" y="216">    *#@@@%#==+=-:..               .</text>
+<text class="row" x="24" y="229">     *#@@@%+==+=--:..             .</text>
+<text class="row" x="24" y="242">      *#%@@%#**+==-::..         .</text>
+<text class="row" x="24" y="255">        ##%%%##*++==--::....  .</text>
+<text class="row" x="24" y="268">          *#%%###*++===--::::.</text>
+<text class="row" x="24" y="281">             *#****+++==---</text>
+<text class="star" x="47.4" y="21" style="animation-delay:0.0s">+</text>
+<text class="star" x="281.4" y="34" style="animation-delay:0.7s">.</text>
+<text class="star" x="320.4" y="60" style="animation-delay:1.4s">*</text>
+<text class="star" x="312.6" y="268" style="animation-delay:2.1s">+</text>
+<text class="star" x="94.2" y="294" style="animation-delay:2.8s">.</text>
+<text class="star" x="24.0" y="255" style="animation-delay:3.5s">.</text>
+<text class="star" x="24.0" y="99" style="animation-delay:0.2s">.</text>
+<text class="star" x="328.2" y="164" style="animation-delay:0.9s">.</text>
+<text class="star" x="242.4" y="294" style="animation-delay:1.6s">*</text>
+</g>
+</svg>

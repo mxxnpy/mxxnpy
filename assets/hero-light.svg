@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="330" viewBox="0 0 1000 330" role="img" aria-label="Ayu — full-stack software engineer. Crescent moon logo." font-family="ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace">
+<title>Ayu — full-stack software engineer. Crescent moon logo.</title>
+<style>
+text { white-space: pre; }
+
+.moon .row { fill: #8a5f12; animation: rise .9s cubic-bezier(.16,1,.3,1) backwards; }
+.moon .star { fill: #9b916f; animation: twinkle 4s ease-in-out infinite; }
+.moon { filter: drop-shadow(0 0 6px #d9b25c55); }
+.label { fill: #6e7386; font-size: 13px; letter-spacing: .14em; }
+.name { fill: #1c1e2a; font-size: 64px; font-weight: 700; letter-spacing: -.02em; }
+.cursor { fill: #8a5f12; animation: blink 1.1s steps(1) infinite; }
+.role { fill: #1c1e2a; font-size: 17px; }
+.tag { fill: #8a5f12; font-size: 17px; }
+.dim { fill: #6e7386; font-size: 14px; }
+.rule { stroke: #c9c3b2; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<rect x="0.5" y="0.5" width="999" height="329" rx="14" fill="#f7f5ef" stroke="#e2ddcf"/>
+<g class="moon" font-size="13">
+<text class="row" x="44" y="44" style="animation-delay:45ms">             ==--::.. . . .</text>
+<text class="row" x="44" y="57" style="animation-delay:90ms">          +++==-::.         .</text>
+<text class="row" x="44" y="70" style="animation-delay:135ms">        ***++=-::.            .</text>
+<text class="row" x="44" y="83" style="animation-delay:180ms">      **#**+=-::.               .</text>
+<text class="row" x="44" y="96" style="animation-delay:225ms">     *###*+==-:.                  .</text>
+<text class="row" x="44" y="109" style="animation-delay:270ms">    *#%%#*+=-:.                   .</text>
+<text class="row" x="44" y="122" style="animation-delay:315ms">    #%%++=-=-:.</text>
+<text class="row" x="44" y="135" style="animation-delay:360ms">   #%@%++=-=-:.                     .</text>
+<text class="row" x="44" y="148" style="animation-delay:405ms">   #%@%#**+=-:.                     .</text>
+<text class="row" x="44" y="161" style="animation-delay:450ms">   #%@%##*+=-:.                     .</text>
+<text class="row" x="44" y="174" style="animation-delay:495ms">   #%@@%#*+=-:.                     .</text>
+<text class="row" x="44" y="187" style="animation-delay:540ms">   #%@@%#*+=--:.                    .</text>
+<text class="row" x="44" y="200" style="animation-delay:585ms">   #%@@%%#*+=-:..                   .</text>
+<text class="row" x="44" y="213" style="animation-delay:630ms">    #%@@%#*++=-:..</text>
+<text class="row" x="44" y="226" style="animation-delay:675ms">    *#@@@%#==+=-:..               .</text>
+<text class="row" x="44" y="239" style="animation-delay:720ms">     *#@@@%+==+=--:..             .</text>
+<text class="row" x="44" y="252" style="animation-delay:765ms">      *#%@@%#**+==-::..         .</text>
+<text class="row" x="44" y="265" style="animation-delay:810ms">        ##%%%##*++==--::....  .</text>
+<text class="row" x="44" y="278" style="animation-delay:855ms">          *#%%###*++===--::::.</text>
+<text class="row" x="44" y="291" style="animation-delay:900ms">             *#****+++==---</text>
+<text class="star" x="67.4" y="31" style="animation-delay:0.0s">+</text>
+<text class="star" x="301.4" y="44" style="animation-delay:0.7s">.</text>
+<text class="star" x="340.4" y="70" style="animation-delay:1.4s">*</text>
+<text class="star" x="332.6" y="278" style="animation-delay:2.1s">+</text>
+<text class="star" x="114.2" y="304" style="animation-delay:2.8s">.</text>
+<text class="star" x="44.0" y="265" style="animation-delay:3.5s">.</text>
+<text class="star" x="44.0" y="109" style="animation-delay:0.2s">.</text>
+<text class="star" x="348.2" y="174" style="animation-delay:0.9s">.</text>
+<text class="star" x="262.4" y="304" style="animation-delay:1.6s">*</text>
+</g>
+<text class="label" x="420" y="78">~/MXXNPY</text>
+<text class="name" x="416" y="142">Ayu<tspan class="cursor">_</tspan></text>
+<text class="role" x="420" y="182">Full-stack software engineer · São Paulo, BR</text>
+<line class="rule" x1="420" y1="206" x2="952" y2="206"/>
+<text class="tag" x="420" y="238">Software that keeps working after dark.</text>
+<text class="dim" x="420" y="268">Backend, interfaces, data and the infrastructure between them.</text>
+<text class="label" x="420" y="300">AYULE.DEV</text>
+</svg>

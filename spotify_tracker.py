@@ -60,6 +60,7 @@ def format_current_playing():
     duration_ms = track.get('duration_ms', 0)
     
     return {
+        'is_playing': True,
         'track': track['name'],
         'artist': ', '.join([artist['name'] for artist in track['artists']]),
         'album': track['album']['name'],
